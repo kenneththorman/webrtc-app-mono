@@ -92,14 +92,14 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				Log.Warn(TAG, "creating OpenGL ES 2.0 context");
 				checkEglError("Before eglCreateContext", egl);
 				int[] attrib_list = new int[] {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EglNone};
-				EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EglNoContext, attrib_list);
+				EGLContext context = egl.EglCreateContext(display, eglConfig, EGL10.EglNoContext, attrib_list);
 				checkEglError("After eglCreateContext", egl);
 				return context;
 			}
 
 			public virtual void DestroyContext(IEGL10 egl, EGLDisplay display, EGLContext context)
 			{
-				egl.eglDestroyContext(display, context);
+				egl.EglDestroyContext(display, context);
 			}
 
 			public void Dispose()
@@ -110,10 +110,10 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			public IntPtr Handle { get; private set; }
 		}
 
-		private static void checkEglError(string prompt, EGL10 egl)
+		private static void checkEglError(string prompt, IEGL10 egl)
 		{
 			int error;
-			while ((error = egl.eglGetError()) != EGL10.EglSuccess)
+			while ((error = egl.EglGetError()) != EGL10.EglSuccess)
 			{
 				Log.Error(TAG, string.Format("{0}: EGL error: 0x{1:x}", prompt, error));
 			}
@@ -143,7 +143,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 
 				// Get the number of minimally matching EGL configurations
 				int[] num_config = new int[1];
-				egl.eglChooseConfig(display, s_configAttribs2, null, 0, num_config);
+				egl.EglChooseConfig(display, s_configAttribs2, null, 0, num_config);
 
 				int numConfigs = num_config[0];
 
@@ -154,7 +154,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 
 				// Allocate then read the array of minimally matching EGL configs
 				EGLConfig[] configs = new EGLConfig[numConfigs];
-				egl.eglChooseConfig(display, s_configAttribs2, configs, numConfigs, num_config);
+				egl.EglChooseConfig(display, s_configAttribs2, configs, numConfigs, num_config);
 
 				if (DEBUG)
 				{
@@ -164,7 +164,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				return chooseConfig(egl, display, configs);
 			}
 
-			public virtual EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs)
+			public virtual EGLConfig chooseConfig(IEGL10 egl, EGLDisplay display, EGLConfig[] configs)
 			{
 				foreach (EGLConfig config in configs)
 				{
@@ -191,17 +191,17 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				return null;
 			}
 
-			internal virtual int FindConfigAttrib(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue)
+			internal virtual int FindConfigAttrib(IEGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue)
 			{
 
-				if (egl.eglGetConfigAttrib(display, config, attribute, mValue))
+				if (egl.EglGetConfigAttrib(display, config, attribute, mValue))
 				{
 					return mValue[0];
 				}
 				return defaultValue;
 			}
 
-			internal virtual void PrintConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs)
+			internal virtual void PrintConfigs(IEGL10 egl, EGLDisplay display, EGLConfig[] configs)
 			{
 				int numConfigs = configs.Length;
 				Log.Warn(TAG, string.Format("{0:D} configurations", numConfigs));
@@ -212,7 +212,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				}
 			}
 
-			internal virtual void PrintConfig(EGL10 egl, EGLDisplay display, EGLConfig config)
+			internal virtual void PrintConfig(IEGL10 egl, EGLDisplay display, EGLConfig config)
 			{
 				int[] attributes = new int[] {EGL10.EglBufferSize, EGL10.EglAlphaSize, EGL10.EglBlueSize, EGL10.EglGreenSize, EGL10.EglRedSize, EGL10.EglDepthSize, EGL10.EglStencilSize, EGL10.EglConfigCaveat, EGL10.EglConfigId, EGL10.EglLevel, EGL10.EglMaxPbufferHeight, EGL10.EglMaxPbufferPixels, EGL10.EglMaxPbufferWidth, EGL10.EglNativeRenderable, EGL10.EglNativeVisualId, EGL10.EglNativeVisualType, 0x3030, EGL10.EglSamples, EGL10.EglSampleBuffers, EGL10.EglSurfaceType, EGL10.EglTransparentType, EGL10.EglTransparentRedValue, EGL10.EglTransparentGreenValue, EGL10.EglTransparentBlueValue, 0x3039, 0x303A, 0x303B, 0x303C, EGL10.EglLuminanceSize, EGL10.EglAlphaMaskSize, EGL10.EglColorBufferType, EGL10.EglRenderableType, 0x3042};
 				string[] names = new string[] {"EGL_BUFFER_SIZE", "EGL_ALPHA_SIZE", "EGL_BLUE_SIZE", "EGL_GREEN_SIZE", "EGL_RED_SIZE", "EGL_DEPTH_SIZE", "EGL_STENCIL_SIZE", "EGL_CONFIG_CAVEAT", "EGL_CONFIG_ID", "EGL_LEVEL", "EGL_MAX_PBUFFER_HEIGHT", "EGL_MAX_PBUFFER_PIXELS", "EGL_MAX_PBUFFER_WIDTH", "EGL_NATIVE_RENDERABLE", "EGL_NATIVE_VISUAL_ID", "EGL_NATIVE_VISUAL_TYPE", "EGL_PRESERVED_RESOURCES", "EGL_SAMPLES", "EGL_SAMPLE_BUFFERS", "EGL_SURFACE_TYPE", "EGL_TRANSPARENT_TYPE", "EGL_TRANSPARENT_RED_VALUE", "EGL_TRANSPARENT_GREEN_VALUE", "EGL_TRANSPARENT_BLUE_VALUE", "EGL_BIND_TO_TEXTURE_RGB", "EGL_BIND_TO_TEXTURE_RGBA", "EGL_MIN_SWAP_INTERVAL", "EGL_MAX_SWAP_INTERVAL", "EGL_LUMINANCE_SIZE", "EGL_ALPHA_MASK_SIZE", "EGL_COLOR_BUFFER_TYPE", "EGL_RENDERABLE_TYPE", "EGL_CONFORMANT"};
@@ -221,14 +221,14 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				{
 					int attribute = attributes[i];
 					string name = names[i];
-					if (egl.eglGetConfigAttrib(display, config, attribute, value))
+					if (egl.EglGetConfigAttrib(display, config, attribute, value))
 					{
 						Log.Warn(TAG, string.Format("  {0}: {1:D}\n", name, value[0]));
 					}
 					else
 					{
 						// Log.Warn(TAG, String.format("  %s: failed\n", name));
-						while (egl.eglGetError() != EGL10.EglSuccess);
+						while (egl.EglGetError() != EGL10.EglSuccess);
 					}
 				}
 			}

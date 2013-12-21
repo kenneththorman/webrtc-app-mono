@@ -9,6 +9,7 @@
  */
 using System;
 using System.Collections.Generic;
+using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -61,17 +62,25 @@ namespace WebRtc
 		private const long AUTO_CALL_RESTART_DELAY_MS = 0;
 
 		private Handler handler = new Handler();
-		private IRunnable startOrStopCallback = new RunnableAnonymousInnerClassHelper();
+		private IRunnable startOrStopCallback; 
+
+		public WebRTCDemo()
+		{
+			startOrStopCallback = new RunnableAnonymousInnerClassHelper(this);
+		}
 
 		private class RunnableAnonymousInnerClassHelper : IRunnable
 		{
-			public RunnableAnonymousInnerClassHelper()
+			private readonly WebRTCDemo _webRtcDemo;
+
+			public RunnableAnonymousInnerClassHelper(WebRTCDemo webRtcDemo)
 			{
+				_webRtcDemo = webRtcDemo;
 			}
 
 			public void Run()
 			{
-				StartOrStop();
+				_webRtcDemo.StartOrStop();
 			}
 
 			public void Dispose()
@@ -194,11 +203,11 @@ namespace WebRtc
 			for (int i = 0; i < Camera.NumberOfCameras; ++i)
 			{
 				Camera.GetCameraInfo(i, info);
-				if (cameraOrientations[info.facing] != -1)
+				if (cameraOrientations[(int)info.Facing] != -1)
 				{
 					continue;
 				}
-				cameraOrientations[info.facing] = info.orientation;
+				cameraOrientations[(int)info.Facing] = info.Orientation;
 			}
 		}
 
@@ -216,7 +225,7 @@ namespace WebRtc
 		// The former is called orientation and the second is called rotation here.
 		public virtual void compensateCameraRotation()
 		{
-			int cameraOrientation = cameraOrientations[facingOf(usingFrontCamera)];
+			int cameraOrientation = cameraOrientations[(int)facingOf(usingFrontCamera)];
 			// The device orientation is the device's rotation relative to its
 			// natural position.
 			int cameraRotation = roundRotation(currentDeviceOrientation);
@@ -233,7 +242,7 @@ namespace WebRtc
 			{
 				totalCameraRotation = (cameraRotation + cameraOrientation) % 360;
 			}
-			vieAndroidAPI.SetRotation(cameraId, totalCameraRotation);
+			ViEAndroidJavaAPI.SetRotation(cameraId, totalCameraRotation);
 		}
 
 		// Called when the activity is first created.
@@ -409,12 +418,13 @@ namespace WebRtc
 				string localIPs = "";
 				try
 				{
-					for (IEnumerator<NetworkInterface> en = NetworkInterface.NetworkInterfaces; en.MoveNext();)
+					Java.Util.IEnumeration networkInterfaces = NetworkInterface.NetworkInterfaces;
+					while (networkInterfaces.HasMoreElements)
 					{
-						NetworkInterface intf = en.Current;
-						for (IEnumerator<InetAddress> enumIpAddr = intf.InetAddresses; enumIpAddr.MoveNext();)
+						var netInterface = (NetworkInterface)networkInterfaces.NextElement();
+						while (netInterface.InetAddresses.HasMoreElements)
 						{
-							InetAddress inetAddress = enumIpAddr.Current;
+							var inetAddress = (InetAddress)netInterface.InetAddresses.NextElement();
 							if (inetAddress != InetAddress.LoopbackAddress)
 							{
 								localIPs += inetAddress.HostAddress.ToString() + " ";
@@ -505,7 +515,7 @@ namespace WebRtc
 
 			public virtual View GetCustomView(int position, View convertView, ViewGroup parent)
 			{
-				LayoutInflater inflater = LayoutInflater;
+				LayoutInflater inflater = outerInstance.LayoutInflater;
 				View row = inflater.Inflate(Resource.Layout.row, parent, false);
 				TextView label = (TextView) row.FindViewById(Resource.Id.spinner_row);
 				label.Text = mCodecString[position];
@@ -524,13 +534,13 @@ namespace WebRtc
 			{
 				vieAndroidAPI = new ViEAndroidJavaAPI(this);
 			}
-			if (0 > setupVoE() || 0 > vieAndroidAPI.GetVideoEngine() || 0 > vieAndroidAPI.Init(enableTrace))
+			if (0 > setupVoE() || 0 > ViEAndroidJavaAPI.GetVideoEngine() || 0 > ViEAndroidJavaAPI.Init(enableTrace))
 			{
 				// Show dialog
 				AlertDialog alertDialog = (new AlertDialog.Builder(this)).Create();
 				alertDialog.SetTitle("WebRTC Error");
 				alertDialog.SetMessage("Can not init video engine.");
-				alertDialog.SetButton(DialogInterface.ButtonPositive, "OK", new OnClickListenerAnonymousInnerClassHelper(this));
+				alertDialog.SetButton((int)DialogInterface.ButtonPositive, "OK", new OnClickListenerAnonymousInnerClassHelper(this));
 				alertDialog.Show();
 			}
 
@@ -663,7 +673,7 @@ namespace WebRtc
 			}
 			else
 			{
-				LocalIpAddress;
+				remoteIp = LocalIpAddress;
 				etRemoteIp.Text = remoteIp;
 			}
 
@@ -933,7 +943,7 @@ namespace WebRtc
 			}
 		}
 
-		private void StartOrStop()
+		internal void StartOrStop()
 		{
 			readSettings();
 			if (viERunning || voERunning)
@@ -995,7 +1005,7 @@ namespace WebRtc
 					}
 					else
 					{
-						LocalIpAddress;
+						remoteIp = LocalIpAddress;
 						etRemoteIp.Text = remoteIp;
 					}
 					break;
