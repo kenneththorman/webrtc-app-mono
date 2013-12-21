@@ -8,8 +8,6 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 using System;
-using System.Collections.Generic;
-using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -25,7 +23,6 @@ using Java.Lang;
 using Java.Net;
 using WebRtc.Org.Webrtc.Videoengine;
 using Camera = Android.Hardware.Camera;
-using Environment = System.Environment;
 using Math = System.Math;
 
 namespace WebRtc.Mono.Droid
