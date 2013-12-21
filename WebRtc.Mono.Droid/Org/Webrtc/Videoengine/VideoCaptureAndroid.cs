@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-
 /*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
@@ -10,22 +9,14 @@ using System.Runtime.InteropServices;
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using Android.Graphics;
+using Android.Util;
+using Android.Views;
+using Java.IO;
+using Camera = Android.Hardware.Camera;
 
-namespace org.webrtc.videoengine
+namespace WebRtc.Org.Webrtc.Videoengine
 {
-
-
-	using ImageFormat = android.graphics.ImageFormat;
-	using PixelFormat = android.graphics.PixelFormat;
-	using Rect = android.graphics.Rect;
-	using SurfaceTexture = android.graphics.SurfaceTexture;
-	using YuvImage = android.graphics.YuvImage;
-	using Camera = android.hardware.Camera;
-	using PreviewCallback = android.hardware.Camera.PreviewCallback;
-	using Log = android.util.Log;
-	using SurfaceHolder = android.view.SurfaceHolder;
-	using Callback = android.view.SurfaceHolder.Callback;
-
 	// Wrapper for android Camera, with support for direct local preview rendering.
 	// Threading notes: this class is called from ViE C++ code, and from Camera &
 	// SurfaceHolder Java callbacks.  Since these calls happen on different threads,
@@ -33,7 +24,7 @@ namespace org.webrtc.videoengine
 	// a performance bottleneck because only onPreviewFrame() is called more than
 	// once (and is called serially on a single thread), so the lock should be
 	// uncontended.
-	public class VideoCaptureAndroid : Camera.PreviewCallback, SurfaceHolder.Callback
+	public class VideoCaptureAndroid : Camera.IPreviewCallback, ISurfaceHolderCallback
 	{
 	  private const string TAG = "WEBRTC-JC";
 
@@ -41,7 +32,7 @@ namespace org.webrtc.videoengine
 	  private readonly int id;
 	  private readonly Camera.CameraInfo info;
 	  private readonly long native_capturer; // |VideoCaptureAndroid*| in C++.
-	  private SurfaceHolder localPreview;
+	  private ISurfaceHolder localPreview;
 	  private SurfaceTexture dummySurfaceTexture;
 	  // Arbitrary queue depth.  Higher number means more memory allocated & held,
 	  // lower number means more sensitivity to processing time in the client (and
@@ -53,7 +44,7 @@ namespace org.webrtc.videoengine
 		this.id = id;
 		this.native_capturer = native_capturer;
 		this.info = new Camera.CameraInfo();
-		Camera.getCameraInfo(id, info);
+		Camera.GetCameraInfo(id, info);
 	  }
 
 	  // Called by native code.  Returns true if capturer is started.
@@ -65,19 +56,19 @@ namespace org.webrtc.videoengine
 	  {
 		  lock (this)
 		  {
-			Log.d(TAG, "startCapture: " + width + "x" + height + "@" + min_mfps + ":" + max_mfps);
+			Log.Debug(TAG, "startCapture: " + width + "x" + height + "@" + min_mfps + ":" + max_mfps);
 			Exception error = null;
 			try
 			{
-			  camera = Camera.open(id);
+			  camera = Camera.Open(id);
         
 			  localPreview = ViERenderer.GetLocalRenderer();
 			  if (localPreview != null)
 			  {
-				localPreview.addCallback(this);
-				if (localPreview.Surface != null && localPreview.Surface.Valid)
+				localPreview.AddCallback(this);
+				if (localPreview.Surface != null && localPreview.Surface.IsValid)
 				{
-				  camera.PreviewDisplay = localPreview;
+				  camera.SetPreviewDisplay(localPreview);
 				}
 			  }
 			  else
@@ -91,7 +82,7 @@ namespace org.webrtc.videoengine
 				{
 				  // "42" because http://goo.gl/KaEn8
 				  dummySurfaceTexture = new SurfaceTexture(42);
-				  camera.PreviewTexture = dummySurfaceTexture;
+				  camera.SetPreviewTexture(dummySurfaceTexture);
 				}
 				catch (IOException e)
 				{
@@ -99,24 +90,24 @@ namespace org.webrtc.videoengine
 				}
 			  }
         
-			  Camera.Parameters parameters = camera.Parameters;
-			  Log.d(TAG, "isVideoStabilizationSupported: " + parameters.VideoStabilizationSupported);
-			  if (parameters.VideoStabilizationSupported)
+			  Camera.Parameters parameters = camera.GetParameters();
+			  Log.Debug(TAG, "isVideoStabilizationSupported: " + parameters.IsVideoStabilizationSupported);
+			  if (parameters.IsVideoStabilizationSupported)
 			  {
 				parameters.VideoStabilization = true;
 			  }
-			  parameters.setPreviewSize(width, height);
-			  parameters.setPreviewFpsRange(min_mfps, max_mfps);
-			  int format = ImageFormat.NV21;
+			  parameters.SetPreviewSize(width, height);
+			  parameters.SetPreviewFpsRange(min_mfps, max_mfps);
+			  var format = ImageFormatType.Nv21;
 			  parameters.PreviewFormat = format;
-			  camera.Parameters = parameters;
-			  int bufSize = width * height * ImageFormat.getBitsPerPixel(format) / 8;
+			  camera.SetParameters(parameters);
+			  int bufSize = width * height * ImageFormat.GetBitsPerPixel(format) / 8;
 			  for (int i = 0; i < numCaptureBuffers; i++)
 			  {
-				camera.addCallbackBuffer(new sbyte[bufSize]);
+				camera.AddCallbackBuffer(new byte[bufSize]);
 			  }
-			  camera.PreviewCallbackWithBuffer = this;
-			  camera.startPreview();
+			  camera.SetPreviewCallbackWithBuffer(this);
+			  camera.StartPreview();
 			  return true;
 			}
 			catch (IOException e)
@@ -127,7 +118,7 @@ namespace org.webrtc.videoengine
 			{
 			  error = e;
 			}
-			Log.e(TAG, "startCapture failed", error);
+			Log.Error(TAG, "startCapture failed", error);
 			if (camera != null)
 			{
 			  stopCapture();
@@ -141,7 +132,7 @@ namespace org.webrtc.videoengine
 	  {
 		  lock (this)
 		  {
-			Log.d(TAG, "stopCapture");
+			Log.Debug(TAG, "stopCapture");
 			if (camera == null)
 			{
 			  throw new Exception("Camera is already stopped!");
@@ -151,16 +142,16 @@ namespace org.webrtc.videoengine
 			{
 			  if (localPreview != null)
 			  {
-				localPreview.removeCallback(this);
-				camera.PreviewDisplay = null;
+				localPreview.RemoveCallback(this);
+				camera.SetPreviewDisplay(null);
 			  }
 			  else
 			  {
-				camera.PreviewTexture = null;
+				camera.SetPreviewTexture(null);
 			  }
-			  camera.PreviewCallbackWithBuffer = null;
-			  camera.stopPreview();
-			  camera.release();
+			  camera.SetPreviewCallbackWithBuffer(null);
+			  camera.StopPreview();
+			  camera.Release();
 			  camera = null;
 			  return true;
 			}
@@ -172,21 +163,21 @@ namespace org.webrtc.videoengine
 			{
 			  error = e;
 			}
-			Log.e(TAG, "Failed to stop camera", error);
+			Log.Error(TAG, "Failed to stop camera", error);
 			return false;
 		  }
 	  }
 
 //JAVA TO C# CONVERTER TODO TASK: Replace 'unknown' with the appropriate dll name:
 	  [DllImport("unknown")]
-	  private extern void ProvideCameraFrame(sbyte[] data, int length, long captureObject);
+	  private extern void ProvideCameraFrame(byte[] data, int length, long captureObject);
 
-	  public virtual void onPreviewFrame(sbyte[] data, Camera camera)
+	  public virtual void OnPreviewFrame(byte[] data, Camera camera)
 	  {
 		  lock (this)
 		  {
 			ProvideCameraFrame(data, data.Length, native_capturer);
-			camera.addCallbackBuffer(data);
+			camera.AddCallbackBuffer(data);
 		  }
 	  }
 
@@ -199,7 +190,7 @@ namespace org.webrtc.videoengine
 		  {
 			  lock (this)
 			  {
-				Log.v(TAG, "setPreviewRotation:" + value);
+				Log.Verbose(TAG, "setPreviewRotation:" + value);
             
 				if (camera == null)
 				{
@@ -207,7 +198,7 @@ namespace org.webrtc.videoengine
 				}
             
 				int resultRotation = 0;
-				if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)
+				if (info.Facing == Camera.CameraInfo.CameraFacingFront)
 				{
 				  // This is a front facing camera.  SetDisplayOrientation will flip
 				  // the image horizontally before doing the value.
@@ -218,29 +209,29 @@ namespace org.webrtc.videoengine
 				  // Back-facing camera.
 				  resultRotation = value;
 				}
-				camera.DisplayOrientation = resultRotation;
+				camera.SetDisplayOrientation(resultRotation);
 			  }
 		  }
 	  }
 
-	  public virtual void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+	  public virtual void SurfaceChanged(ISurfaceHolder holder, Format format, int width, int height)
 	  {
 		  lock (this)
 		  {
-			Log.d(TAG, "VideoCaptureAndroid::surfaceChanged ignored: " + format + ": " + width + "x" + height);
+			Log.Debug(TAG, "VideoCaptureAndroid::surfaceChanged ignored: " + format + ": " + width + "x" + height);
 		  }
 	  }
 
-	  public virtual void surfaceCreated(SurfaceHolder holder)
+	  public virtual void SurfaceCreated(ISurfaceHolder holder)
 	  {
 		  lock (this)
 		  {
-			Log.d(TAG, "VideoCaptureAndroid::surfaceCreated");
+			Log.Debug(TAG, "VideoCaptureAndroid::surfaceCreated");
 			try
 			{
 			  if (camera != null)
 			  {
-				camera.PreviewDisplay = holder;
+				camera.SetPreviewDisplay(holder);
 			  }
 			}
 			catch (IOException e)
@@ -250,16 +241,16 @@ namespace org.webrtc.videoengine
 		  }
 	  }
 
-	  public virtual void surfaceDestroyed(SurfaceHolder holder)
+	  public virtual void SurfaceDestroyed(ISurfaceHolder holder)
 	  {
 		  lock (this)
 		  {
-			Log.d(TAG, "VideoCaptureAndroid::surfaceDestroyed");
+			Log.Debug(TAG, "VideoCaptureAndroid::surfaceDestroyed");
 			try
 			{
 			  if (camera != null)
 			  {
-				camera.PreviewDisplay = null;
+				camera.SetPreviewDisplay(null);
 			  }
 			}
 			catch (IOException e)

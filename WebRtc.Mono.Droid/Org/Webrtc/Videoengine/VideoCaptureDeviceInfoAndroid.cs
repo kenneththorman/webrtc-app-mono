@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -10,34 +7,26 @@ using System.Collections.Generic;
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using System;
+using System.Collections.Generic;
+using Android.Hardware;
+using Android.Util;
+using Org.Json;
 
-namespace org.webrtc.videoengine
+namespace WebRtc.Org.Webrtc.Videoengine
 {
-
-
-	using Context = android.content.Context;
-	using CameraInfo = android.hardware.Camera.CameraInfo;
-	using Parameters = android.hardware.Camera.Parameters;
-	using Size = android.hardware.Camera.Size;
-	using Camera = android.hardware.Camera;
-	using Log = android.util.Log;
-
-	using JSONArray = org.json.JSONArray;
-	using JSONException = org.json.JSONException;
-	using JSONObject = org.json.JSONObject;
-
 	public class VideoCaptureDeviceInfoAndroid
 	{
 	  private const string TAG = "WEBRTC-JC";
 
-	  private static bool isFrontFacing(CameraInfo info)
+	  private static bool isFrontFacing(Camera.CameraInfo info)
 	  {
-		return info.facing == CameraInfo.CAMERA_FACING_FRONT;
+		return info.Facing == CameraFacing.Front;
 	  }
 
-	  private static string deviceUniqueName(int index, CameraInfo info)
+	  private static string deviceUniqueName(int index, Camera.CameraInfo info)
 	  {
-		return "Camera " + index + ", Facing " + (isFrontFacing(info) ? "front" : "back") + ", Orientation " + info.orientation;
+		return "Camera " + index + ", Facing " + (isFrontFacing(info) ? "front" : "back") + ", Orientation " + info.Orientation;
 	  }
 
 	  // Returns information about all cameras on the device as a serialized JSON
@@ -54,41 +43,41 @@ namespace org.webrtc.videoengine
 			  JSONArray devices = new JSONArray();
 			  for (int i = 0; i < Camera.NumberOfCameras; ++i)
 			  {
-				CameraInfo info = new CameraInfo();
-				Camera.getCameraInfo(i, info);
+				Camera.CameraInfo info = new Camera.CameraInfo();
+				Camera.GetCameraInfo(i, info);
 				string uniqueName = deviceUniqueName(i, info);
 				JSONObject cameraDict = new JSONObject();
-				devices.put(cameraDict);
-				IList<Size> supportedSizes;
+				devices.Put(cameraDict);
+				IList<Camera.Size> supportedSizes;
 				IList<int[]> supportedFpsRanges;
 				try
 				{
-				  Camera camera = Camera.open(i);
-				  Parameters parameters = camera.Parameters;
+				  Camera camera = Camera.Open(i);
+				  Camera.Parameters parameters = camera.GetParameters();
 				  supportedSizes = parameters.SupportedPreviewSizes;
 				  supportedFpsRanges = parameters.SupportedPreviewFpsRange;
-				  camera.release();
-				  Log.d(TAG, uniqueName);
+				  camera.Release();
+				  Log.Debug(TAG, uniqueName);
 				}
 				catch (Exception e)
 				{
-				  Log.e(TAG, "Failed to open " + uniqueName + ", skipping");
+				  Log.Error(TAG, "Failed to open " + uniqueName + ", skipping");
 				  continue;
 				}
 				JSONArray sizes = new JSONArray();
-				foreach (Size supportedSize in supportedSizes)
+				foreach (Camera.Size supportedSize in supportedSizes)
 				{
 				  JSONObject size = new JSONObject();
-				  size.put("width", supportedSize.width);
-				  size.put("height", supportedSize.height);
-				  sizes.put(size);
+				  size.Put("width", supportedSize.Width);
+				  size.Put("height", supportedSize.Height);
+				  sizes.Put(size);
 				}
 				// Android SDK deals in integral "milliframes per second"
 				// (i.e. fps*1000, instead of floating-point frames-per-second) so we
 				// preserve that through the Java->C++->Java round-trip.
 				int[] mfps = supportedFpsRanges[supportedFpsRanges.Count - 1];
-				cameraDict.put("name", uniqueName);
-				cameraDict.put("front_facing", isFrontFacing(info)).put("orientation", info.orientation).put("sizes", sizes).put("min_mfps", mfps[Parameters.PREVIEW_FPS_MIN_INDEX]).put("max_mfps", mfps[Parameters.PREVIEW_FPS_MAX_INDEX]);
+				cameraDict.Put("name", uniqueName);
+				cameraDict.Put("front_facing", isFrontFacing(info)).Put("orientation", info.Orientation).Put("sizes", sizes).Put("min_mfps", mfps[Parameters.PREVIEW_FPS_MIN_INDEX]).Put("max_mfps", mfps[Parameters.PREVIEW_FPS_MAX_INDEX]);
 			  }
 			  string ret = devices.ToString(2);
 			  return ret;

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -9,19 +7,23 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using System.Runtime.InteropServices;
+using Android.App;
+using Android.Content;
+using Android.Content.PM;
+using Android.Graphics;
+using Android.Opengl;
+using Android.Util;
+using Java.Util.Concurrent.Locks;
+using Javax.Microedition.Khronos.Egl;
+using Javax.Microedition.Khronos.Opengles;
+using EGLConfig = Javax.Microedition.Khronos.Egl.EGLConfig;
+using EGLContext = Javax.Microedition.Khronos.Egl.EGLContext;
+using EGLDisplay = Javax.Microedition.Khronos.Egl.EGLDisplay;
 
-namespace org.webrtc.videoengine
+namespace WebRtc.Org.Webrtc.Videoengine
 {
-
-
-	using ActivityManager = android.app.ActivityManager;
-	using Context = android.content.Context;
-	using ConfigurationInfo = android.content.pm.ConfigurationInfo;
-	using PixelFormat = android.graphics.PixelFormat;
-	using GLSurfaceView = android.opengl.GLSurfaceView;
-	using Log = android.util.Log;
-
-	public class ViEAndroidGLES20 : GLSurfaceView, GLSurfaceView.Renderer
+	public class ViEAndroidGLES20 : GLSurfaceView, GLSurfaceView.IRenderer
 	{
 		private static string TAG = "WEBRTC-JR";
 		private const bool DEBUG = false;
@@ -60,38 +62,40 @@ namespace org.webrtc.videoengine
 			// is interpreted as any 32-bit surface with alpha by SurfaceFlinger.
 			if (translucent)
 			{
-				this.Holder.Format = PixelFormat.TRANSLUCENT;
+				Holder.SetFormat(Format.Translucent);
 			}
 
 			// Setup the context factory for 2.0 rendering.
 			// See ContextFactory class definition below
-			EGLContextFactory = new ContextFactory();
+			SetEGLContextFactory(new ContextFactory());
 
 			// We need to choose an EGLConfig that matches the format of
 			// our surface exactly. This is going to be done in our
 			// custom config chooser. See ConfigChooser class definition
 			// below.
-			EGLConfigChooser = translucent ? new ConfigChooser(8, 8, 8, 8, depth, stencil) : new ConfigChooser(5, 6, 5, 0, depth, stencil);
+			SetEGLConfigChooser(translucent ? 
+				new ConfigChooser(8, 8, 8, 8, depth, stencil) : 
+				new ConfigChooser(5, 6, 5, 0, depth, stencil));
 
 			// Set the renderer responsible for frame rendering
-			this.Renderer = this;
-			this.RenderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY;
+			SetRenderer(this);
+			RenderMode = Rendermode.WhenDirty;
 		}
 
-		private class ContextFactory : GLSurfaceView.EGLContextFactory
+		private class ContextFactory : GLSurfaceView.IEGLContextFactory
 		{
 			internal static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-			public virtual EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig)
+			public virtual EGLContext CreateContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig)
 			{
-				Log.w(TAG, "creating OpenGL ES 2.0 context");
+				Log.Warn(TAG, "creating OpenGL ES 2.0 context");
 				checkEglError("Before eglCreateContext", egl);
-				int[] attrib_list = new int[] {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
-				EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
+				int[] attrib_list = new int[] {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EglNone};
+				EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EglNoContext, attrib_list);
 				checkEglError("After eglCreateContext", egl);
 				return context;
 			}
 
-			public virtual void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context)
+			public virtual void DestroyContext(EGL10 egl, EGLDisplay display, EGLContext context)
 			{
 				egl.eglDestroyContext(display, context);
 			}
@@ -100,13 +104,13 @@ namespace org.webrtc.videoengine
 		private static void checkEglError(string prompt, EGL10 egl)
 		{
 			int error;
-			while ((error = egl.eglGetError()) != EGL10.EGL_SUCCESS)
+			while ((error = egl.eglGetError()) != EGL10.EglSuccess)
 			{
-				Log.e(TAG, string.Format("{0}: EGL error: 0x{1:x}", prompt, error));
+				Log.Error(TAG, string.Format("{0}: EGL error: 0x{1:x}", prompt, error));
 			}
 		}
 
-		private class ConfigChooser : GLSurfaceView.EGLConfigChooser
+		private class ConfigChooser : IEGLConfigChooser
 		{
 
 			public ConfigChooser(int r, int g, int b, int a, int depth, int stencil)
@@ -123,9 +127,9 @@ namespace org.webrtc.videoengine
 			// We use a minimum size of 4 bits for red/green/blue, but will
 			// perform actual matching in chooseConfig() below.
 			internal static int EGL_OPENGL_ES2_BIT = 4;
-			internal static int[] s_configAttribs2 = new int[] {EGL10.EGL_RED_SIZE, 4, EGL10.EGL_GREEN_SIZE, 4, EGL10.EGL_BLUE_SIZE, 4, EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL10.EGL_NONE};
+			internal static int[] s_configAttribs2 = new int[] {EGL10.EglRedSize, 4, EGL10.EglGreenSize, 4, EGL10.EglBlueSize, 4, EGL10.EglRenderableType, EGL_OPENGL_ES2_BIT, EGL10.EglNone};
 
-			public virtual EGLConfig chooseConfig(EGL10 egl, EGLDisplay display)
+			public virtual EGLConfig ChooseConfig(EGL10 egl, EGLDisplay display)
 			{
 
 				// Get the number of minimally matching EGL configurations
@@ -145,7 +149,7 @@ namespace org.webrtc.videoengine
 
 				if (DEBUG)
 				{
-					printConfigs(egl, display, configs);
+					PrintConfigs(egl, display, configs);
 				}
 				// Now return the "best" one
 				return chooseConfig(egl, display, configs);
@@ -155,8 +159,8 @@ namespace org.webrtc.videoengine
 			{
 				foreach (EGLConfig config in configs)
 				{
-					int d = findConfigAttrib(egl, display, config, EGL10.EGL_DEPTH_SIZE, 0);
-					int s = findConfigAttrib(egl, display, config, EGL10.EGL_STENCIL_SIZE, 0);
+					int d = FindConfigAttrib(egl, display, config, EGL10.EglDepthSize, 0);
+					int s = FindConfigAttrib(egl, display, config, EGL10.EglStencilSize, 0);
 
 					// We need at least mDepthSize and mStencilSize bits
 					if (d < mDepthSize || s < mStencilSize)
@@ -165,10 +169,10 @@ namespace org.webrtc.videoengine
 					}
 
 					// We want an *exact* match for red/green/blue/alpha
-					int r = findConfigAttrib(egl, display, config, EGL10.EGL_RED_SIZE, 0);
-					int g = findConfigAttrib(egl, display, config, EGL10.EGL_GREEN_SIZE, 0);
-					int b = findConfigAttrib(egl, display, config, EGL10.EGL_BLUE_SIZE, 0);
-					int a = findConfigAttrib(egl, display, config, EGL10.EGL_ALPHA_SIZE, 0);
+					int r = FindConfigAttrib(egl, display, config, EGL10.EglRedSize, 0);
+					int g = FindConfigAttrib(egl, display, config, EGL10.EglGreenSize, 0);
+					int b = FindConfigAttrib(egl, display, config, EGL10.EglBlueSize, 0);
+					int a = FindConfigAttrib(egl, display, config, EGL10.EglAlphaSize, 0);
 
 					if (r == mRedSize && g == mGreenSize && b == mBlueSize && a == mAlphaSize)
 					{
@@ -178,7 +182,7 @@ namespace org.webrtc.videoengine
 				return null;
 			}
 
-			internal virtual int findConfigAttrib(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue)
+			internal virtual int FindConfigAttrib(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute, int defaultValue)
 			{
 
 				if (egl.eglGetConfigAttrib(display, config, attribute, mValue))
@@ -188,20 +192,20 @@ namespace org.webrtc.videoengine
 				return defaultValue;
 			}
 
-			internal virtual void printConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs)
+			internal virtual void PrintConfigs(EGL10 egl, EGLDisplay display, EGLConfig[] configs)
 			{
 				int numConfigs = configs.Length;
-				Log.w(TAG, string.Format("{0:D} configurations", numConfigs));
+				Log.Warn(TAG, string.Format("{0:D} configurations", numConfigs));
 				for (int i = 0; i < numConfigs; i++)
 				{
-					Log.w(TAG, string.Format("Configuration {0:D}:\n", i));
-					printConfig(egl, display, configs[i]);
+					Log.Warn(TAG, string.Format("Configuration {0:D}:\n", i));
+					PrintConfig(egl, display, configs[i]);
 				}
 			}
 
-			internal virtual void printConfig(EGL10 egl, EGLDisplay display, EGLConfig config)
+			internal virtual void PrintConfig(EGL10 egl, EGLDisplay display, EGLConfig config)
 			{
-				int[] attributes = new int[] {EGL10.EGL_BUFFER_SIZE, EGL10.EGL_ALPHA_SIZE, EGL10.EGL_BLUE_SIZE, EGL10.EGL_GREEN_SIZE, EGL10.EGL_RED_SIZE, EGL10.EGL_DEPTH_SIZE, EGL10.EGL_STENCIL_SIZE, EGL10.EGL_CONFIG_CAVEAT, EGL10.EGL_CONFIG_ID, EGL10.EGL_LEVEL, EGL10.EGL_MAX_PBUFFER_HEIGHT, EGL10.EGL_MAX_PBUFFER_PIXELS, EGL10.EGL_MAX_PBUFFER_WIDTH, EGL10.EGL_NATIVE_RENDERABLE, EGL10.EGL_NATIVE_VISUAL_ID, EGL10.EGL_NATIVE_VISUAL_TYPE, 0x3030, EGL10.EGL_SAMPLES, EGL10.EGL_SAMPLE_BUFFERS, EGL10.EGL_SURFACE_TYPE, EGL10.EGL_TRANSPARENT_TYPE, EGL10.EGL_TRANSPARENT_RED_VALUE, EGL10.EGL_TRANSPARENT_GREEN_VALUE, EGL10.EGL_TRANSPARENT_BLUE_VALUE, 0x3039, 0x303A, 0x303B, 0x303C, EGL10.EGL_LUMINANCE_SIZE, EGL10.EGL_ALPHA_MASK_SIZE, EGL10.EGL_COLOR_BUFFER_TYPE, EGL10.EGL_RENDERABLE_TYPE, 0x3042};
+				int[] attributes = new int[] {EGL10.EglBufferSize, EGL10.EglAlphaSize, EGL10.EglBlueSize, EGL10.EglGreenSize, EGL10.EglRedSize, EGL10.EglDepthSize, EGL10.EglStencilSize, EGL10.EglConfigCaveat, EGL10.EglConfigId, EGL10.EglLevel, EGL10.EglMaxPbufferHeight, EGL10.EglMaxPbufferPixels, EGL10.EglMaxPbufferWidth, EGL10.EglNativeRenderable, EGL10.EglNativeVisualId, EGL10.EglNativeVisualType, 0x3030, EGL10.EglSamples, EGL10.EglSampleBuffers, EGL10.EglSurfaceType, EGL10.EglTransparentType, EGL10.EglTransparentRedValue, EGL10.EglTransparentGreenValue, EGL10.EglTransparentBlueValue, 0x3039, 0x303A, 0x303B, 0x303C, EGL10.EglLuminanceSize, EGL10.EglAlphaMaskSize, EGL10.EglColorBufferType, EGL10.EglRenderableType, 0x3042};
 				string[] names = new string[] {"EGL_BUFFER_SIZE", "EGL_ALPHA_SIZE", "EGL_BLUE_SIZE", "EGL_GREEN_SIZE", "EGL_RED_SIZE", "EGL_DEPTH_SIZE", "EGL_STENCIL_SIZE", "EGL_CONFIG_CAVEAT", "EGL_CONFIG_ID", "EGL_LEVEL", "EGL_MAX_PBUFFER_HEIGHT", "EGL_MAX_PBUFFER_PIXELS", "EGL_MAX_PBUFFER_WIDTH", "EGL_NATIVE_RENDERABLE", "EGL_NATIVE_VISUAL_ID", "EGL_NATIVE_VISUAL_TYPE", "EGL_PRESERVED_RESOURCES", "EGL_SAMPLES", "EGL_SAMPLE_BUFFERS", "EGL_SURFACE_TYPE", "EGL_TRANSPARENT_TYPE", "EGL_TRANSPARENT_RED_VALUE", "EGL_TRANSPARENT_GREEN_VALUE", "EGL_TRANSPARENT_BLUE_VALUE", "EGL_BIND_TO_TEXTURE_RGB", "EGL_BIND_TO_TEXTURE_RGBA", "EGL_MIN_SWAP_INTERVAL", "EGL_MAX_SWAP_INTERVAL", "EGL_LUMINANCE_SIZE", "EGL_ALPHA_MASK_SIZE", "EGL_COLOR_BUFFER_TYPE", "EGL_RENDERABLE_TYPE", "EGL_CONFORMANT"};
 				int[] value = new int[1];
 				for (int i = 0; i < attributes.Length; i++)
@@ -210,12 +214,12 @@ namespace org.webrtc.videoengine
 					string name = names[i];
 					if (egl.eglGetConfigAttrib(display, config, attribute, value))
 					{
-						Log.w(TAG, string.Format("  {0}: {1:D}\n", name, value[0]));
+						Log.Warn(TAG, string.Format("  {0}: {1:D}\n", name, value[0]));
 					}
 					else
 					{
-						// Log.w(TAG, String.format("  %s: failed\n", name));
-						while (egl.eglGetError() != EGL10.EGL_SUCCESS);
+						// Log.Warn(TAG, String.format("  %s: failed\n", name));
+						while (egl.eglGetError() != EGL10.EglSuccess);
 					}
 				}
 			}
@@ -234,9 +238,9 @@ namespace org.webrtc.videoengine
 		// Return true if this device support Open GL ES 2.0 rendering.
 		public static bool IsSupported(Context context)
 		{
-			ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+			ActivityManager am = (ActivityManager) context.GetSystemService(Context.ActivityService);
 			ConfigurationInfo info = am.DeviceConfigurationInfo;
-			if (info.reqGlEsVersion >= 0x20000)
+			if (info.ReqGlEsVersion >= 0x20000)
 			{
 				// Open GL ES 2.0 is supported.
 				return true;
@@ -244,12 +248,12 @@ namespace org.webrtc.videoengine
 			return false;
 		}
 
-		public virtual void onDrawFrame(GL10 gl)
+		public virtual void OnDrawFrame(GL10 gl)
 		{
-			nativeFunctionLock.@lock();
+			nativeFunctionLock.Lock();
 			if (!nativeFunctionsRegisted || !surfaceCreated)
 			{
-				nativeFunctionLock.unlock();
+				nativeFunctionLock.Unlock();
 				return;
 			}
 
@@ -262,16 +266,16 @@ namespace org.webrtc.videoengine
 				openGLCreated = true; // Created OpenGL successfully
 			}
 			DrawNative(nativeObject); // Draw the new frame
-			nativeFunctionLock.unlock();
+			nativeFunctionLock.Unlock();
 		}
 
-		public virtual void onSurfaceChanged(GL10 gl, int width, int height)
+		public virtual void OnSurfaceChanged(GL10 gl, int width, int height)
 		{
 			surfaceCreated = true;
 			viewWidth = width;
 			viewHeight = height;
 
-			nativeFunctionLock.@lock();
+			nativeFunctionLock.Lock();
 			if (nativeFunctionsRegisted)
 			{
 				if (CreateOpenGLNative(nativeObject,width,height) == 0)
@@ -279,28 +283,28 @@ namespace org.webrtc.videoengine
 					openGLCreated = true;
 				}
 			}
-			nativeFunctionLock.unlock();
+			nativeFunctionLock.Unlock();
 		}
 
-		public virtual void onSurfaceCreated(GL10 gl, EGLConfig config)
+		public virtual void OnSurfaceCreated(GL10 gl, EGLConfig config)
 		{
 		}
 
 		public virtual void RegisterNativeObject(long nativeObject)
 		{
-			nativeFunctionLock.@lock();
+			nativeFunctionLock.Lock();
 			this.nativeObject = nativeObject;
 			nativeFunctionsRegisted = true;
-			nativeFunctionLock.unlock();
+			nativeFunctionLock.Unlock();
 		}
 
 		public virtual void DeRegisterNativeObject()
 		{
-			nativeFunctionLock.@lock();
+			nativeFunctionLock.Lock();
 			nativeFunctionsRegisted = false;
 			openGLCreated = false;
 			this.nativeObject = 0;
-			nativeFunctionLock.unlock();
+			nativeFunctionLock.Unlock();
 		}
 
 		public virtual void ReDraw()
@@ -308,15 +312,15 @@ namespace org.webrtc.videoengine
 			if (surfaceCreated)
 			{
 				// Request the renderer to redraw using the render thread context.
-				this.requestRender();
+				RequestRender();
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Replace 'unknown' with the appropriate dll name:
-		[DllImport("unknown")]
+
+		[DllImport("libwebrtc-video-demo-jni.so")]
 		private extern int CreateOpenGLNative(long nativeObject, int width, int height);
-//JAVA TO C# CONVERTER TODO TASK: Replace 'unknown' with the appropriate dll name:
-		[DllImport("unknown")]
+
+		[DllImport("libwebrtc-video-demo-jni.so")]
 		private extern void DrawNative(long nativeObject);
 
 	}

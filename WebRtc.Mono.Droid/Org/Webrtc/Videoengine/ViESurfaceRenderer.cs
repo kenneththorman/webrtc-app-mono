@@ -1,6 +1,4 @@
-﻿using System;
-
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -9,22 +7,21 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using System;
+using Android.Graphics;
+using Android.OS;
+using Android.Util;
+using Android.Views;
+using Java.IO;
+using Java.Nio;
 
-namespace org.webrtc.videoengine
+namespace WebRtc.Org.Webrtc.Videoengine
 {
 
 	// The following four imports are needed saveBitmapToJPEG which
 	// is for debug only
-
-	using Bitmap = android.graphics.Bitmap;
-	using Canvas = android.graphics.Canvas;
-	using Rect = android.graphics.Rect;
-	using Log = android.util.Log;
-	using SurfaceHolder = android.view.SurfaceHolder;
-	using SurfaceView = android.view.SurfaceView;
-	using Callback = android.view.SurfaceHolder.Callback;
-
-	public class ViESurfaceRenderer : SurfaceHolder.Callback
+	
+	public class ViESurfaceRenderer : ISurfaceHolderCallback
 	{
 
 		private const string TAG = "WEBRTC";
@@ -32,7 +29,7 @@ namespace org.webrtc.videoengine
 		// the bitmap used for drawing.
 		private Bitmap bitmap = null;
 		private ByteBuffer byteBuffer = null;
-		private SurfaceHolder surfaceHolder;
+		private ISurfaceHolder surfaceHolder;
 		// Rect of the source bitmap to draw
 		private Rect srcRect = new Rect();
 		// Rect of the destination canvas to draw to
@@ -49,82 +46,82 @@ namespace org.webrtc.videoengine
 			{
 				return;
 			}
-			surfaceHolder.addCallback(this);
+			surfaceHolder.AddCallback(this);
 		}
 
 		// surfaceChanged and surfaceCreated share this function
 		private void changeDestRect(int dstWidth, int dstHeight)
 		{
-			dstRect.right = (int)(dstRect.left + dstRightScale * dstWidth);
-			dstRect.bottom = (int)(dstRect.top + dstBottomScale * dstHeight);
+			dstRect.Right = (int)(dstRect.Left + dstRightScale * dstWidth);
+			dstRect.Bottom = (int)(dstRect.Top + dstBottomScale * dstHeight);
 		}
 
-		public virtual void surfaceChanged(SurfaceHolder holder, int format, int in_width, int in_height)
+		public virtual void SurfaceChanged(ISurfaceHolder holder, Format format, int in_width, int in_height)
 		{
-			Log.d(TAG, "ViESurfaceRender::surfaceChanged");
+			Log.Debug(TAG, "ViESurfaceRender::surfaceChanged");
 
 			changeDestRect(in_width, in_height);
 
-			Log.d(TAG, "ViESurfaceRender::surfaceChanged" + " in_width:" + in_width + " in_height:" + in_height + " srcRect.left:" + srcRect.left + " srcRect.top:" + srcRect.top + " srcRect.right:" + srcRect.right + " srcRect.bottom:" + srcRect.bottom + " dstRect.left:" + dstRect.left + " dstRect.top:" + dstRect.top + " dstRect.right:" + dstRect.right + " dstRect.bottom:" + dstRect.bottom);
+			Log.Debug(TAG, "ViESurfaceRender::surfaceChanged" + " in_width:" + in_width + " in_height:" + in_height + " srcRect.Left:" + srcRect.Left + " srcRect.Top:" + srcRect.Top + " srcRect.Right:" + srcRect.Right + " srcRect.Bottom:" + srcRect.Bottom + " dstRect.Left:" + dstRect.Left + " dstRect.Top:" + dstRect.Top + " dstRect.Right:" + dstRect.Right + " dstRect.Bottom:" + dstRect.Bottom);
 		}
 
-		public virtual void surfaceCreated(SurfaceHolder holder)
+		public virtual void SurfaceCreated(ISurfaceHolder holder)
 		{
-			Canvas canvas = surfaceHolder.lockCanvas();
+			Canvas canvas = surfaceHolder.LockCanvas();
 			if (canvas != null)
 			{
 				Rect dst = surfaceHolder.SurfaceFrame;
 				if (dst != null)
 				{
-					changeDestRect(dst.right - dst.left, dst.bottom - dst.top);
-					Log.d(TAG, "ViESurfaceRender::surfaceCreated" + " dst.left:" + dst.left + " dst.top:" + dst.top + " dst.right:" + dst.right + " dst.bottom:" + dst.bottom + " srcRect.left:" + srcRect.left + " srcRect.top:" + srcRect.top + " srcRect.right:" + srcRect.right + " srcRect.bottom:" + srcRect.bottom + " dstRect.left:" + dstRect.left + " dstRect.top:" + dstRect.top + " dstRect.right:" + dstRect.right + " dstRect.bottom:" + dstRect.bottom);
+					changeDestRect(dst.Right - dst.Left, dst.Bottom - dst.Top);
+					Log.Debug(TAG, "ViESurfaceRender::surfaceCreated" + " dst.Left:" + dst.Left + " dst.Top:" + dst.Top + " dst.Right:" + dst.Right + " dst.Bottom:" + dst.Bottom + " srcRect.Left:" + srcRect.Left + " srcRect.Top:" + srcRect.Top + " srcRect.Right:" + srcRect.Right + " srcRect.Bottom:" + srcRect.Bottom + " dstRect.Left:" + dstRect.Left + " dstRect.Top:" + dstRect.Top + " dstRect.Right:" + dstRect.Right + " dstRect.Bottom:" + dstRect.Bottom);
 				}
-				surfaceHolder.unlockCanvasAndPost(canvas);
+				surfaceHolder.UnlockCanvasAndPost(canvas);
 			}
 		}
 
-		public virtual void surfaceDestroyed(SurfaceHolder holder)
+		public virtual void SurfaceDestroyed(ISurfaceHolder holder)
 		{
-			Log.d(TAG, "ViESurfaceRenderer::surfaceDestroyed");
+			Log.Debug(TAG, "ViESurfaceRenderer::surfaceDestroyed");
 			bitmap = null;
 			byteBuffer = null;
 		}
 
 		public virtual Bitmap CreateBitmap(int width, int height)
 		{
-			Log.d(TAG, "CreateByteBitmap " + width + ":" + height);
+			Log.Debug(TAG, "CreateByteBitmap " + width + ":" + height);
 			if (bitmap == null)
 			{
 				try
 				{
-					android.os.Process.ThreadPriority = android.os.Process.THREAD_PRIORITY_DISPLAY;
+					Process.SetThreadPriority(ThreadPriority.Display);
 				}
 				catch (Exception)
 				{
 				}
 			}
-			bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-			srcRect.left = 0;
-			srcRect.top = 0;
-			srcRect.bottom = height;
-			srcRect.right = width;
+			bitmap = Bitmap.CreateBitmap(width, height, Bitmap.Config.Rgb565);
+			srcRect.Left = 0;
+			srcRect.Top = 0;
+			srcRect.Bottom = height;
+			srcRect.Right = width;
 			return bitmap;
 		}
 
 		public virtual ByteBuffer CreateByteBuffer(int width, int height)
 		{
-			Log.d(TAG, "CreateByteBuffer " + width + ":" + height);
+			Log.Debug(TAG, "CreateByteBuffer " + width + ":" + height);
 			if (bitmap == null)
 			{
 				bitmap = CreateBitmap(width, height);
-				byteBuffer = ByteBuffer.allocateDirect(width * height * 2);
+				byteBuffer = ByteBuffer.AllocateDirect(width * height * 2);
 			}
 			return byteBuffer;
 		}
 
 		public virtual void SetCoordinates(float left, float top, float right, float bottom)
 		{
-			Log.d(TAG, "SetCoordinates " + left + "," + top + ":" + right + "," + bottom);
+			Log.Debug(TAG, "SetCoordinates " + left + "," + top + ":" + right + "," + bottom);
 			dstLeftScale = left;
 			dstTopScale = top;
 			dstRightScale = right;
@@ -135,14 +132,14 @@ namespace org.webrtc.videoengine
 		private void saveBitmapToJPEG(int width, int height)
 		{
 			ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteOutStream);
+			bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, byteOutStream);
 
 			try
 			{
 				FileOutputStream output = new FileOutputStream(string.Format("/sdcard/render_{0:D}.jpg", DateTimeHelperClass.CurrentUnixTimeMillis()));
-				output.write(byteOutStream.toByteArray());
-				output.flush();
-				output.close();
+				output.Write(byteOutStream.ToByteArray());
+				output.Flush();
+				output.Close();
 			}
 			catch (FileNotFoundException)
 			{
@@ -158,8 +155,8 @@ namespace org.webrtc.videoengine
 			{
 				return;
 			}
-			byteBuffer.rewind();
-			bitmap.copyPixelsFromBuffer(byteBuffer);
+			byteBuffer.Rewind();
+			bitmap.CopyPixelsFromBuffer(byteBuffer);
 			DrawBitmap();
 		}
 
@@ -170,14 +167,14 @@ namespace org.webrtc.videoengine
 				return;
 			}
 
-			Canvas canvas = surfaceHolder.lockCanvas();
+			Canvas canvas = surfaceHolder.LockCanvas();
 			if (canvas != null)
 			{
 				// The follow line is for debug only
-				// saveBitmapToJPEG(srcRect.right - srcRect.left,
-				//                  srcRect.bottom - srcRect.top);
-				canvas.drawBitmap(bitmap, srcRect, dstRect, null);
-				surfaceHolder.unlockCanvasAndPost(canvas);
+				// saveBitmapToJPEG(srcRect.Right - srcRect.Left,
+				//                  srcRect.Bottom - srcRect.Top);
+				canvas.DrawBitmap(bitmap, srcRect, dstRect, null);
+				surfaceHolder.UnlockCanvasAndPost(canvas);
 			}
 		}
 

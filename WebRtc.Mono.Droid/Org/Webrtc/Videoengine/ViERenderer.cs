@@ -8,18 +8,17 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-namespace org.webrtc.videoengine
+
+using Android.Content;
+using Android.Views;
+
+namespace WebRtc.Org.Webrtc.Videoengine
 {
-
-	using Context = android.content.Context;
-	using SurfaceHolder = android.view.SurfaceHolder;
-	using SurfaceView = android.view.SurfaceView;
-
 	public class ViERenderer
 	{
 
 		// View used for local rendering that Cameras can use for Video Overlay.
-		private static SurfaceHolder g_localRenderer;
+		private static ISurfaceHolder g_localRenderer;
 
 		public static SurfaceView CreateRenderer(Context context)
 		{
@@ -58,7 +57,7 @@ namespace org.webrtc.videoengine
 			return localRender;
 		}
 
-		public static SurfaceHolder GetLocalRenderer()
+		public static ISurfaceHolder GetLocalRenderer()
 		{
 			return g_localRenderer;
 		}
