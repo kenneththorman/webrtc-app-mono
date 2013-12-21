@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libwebrtc-video-demo-jni.so" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="src\video_engine\test\android\gen\R.java.d" />
