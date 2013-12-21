@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -8,12 +8,14 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package org.webrtc.videoengineapp;
+namespace org.webrtc.videoengineapp
+{
 
-public interface IViEAndroidCallback {
-    public int updateStats(int frameRateI, int bitRateI,
-        int packetLoss, int frameRateO,
-        int bitRateO);
+	public interface IViEAndroidCallback
+	{
+		int updateStats(int frameRateI, int bitRateI, int packetLoss, int frameRateO, int bitRateO);
 
-    public int newIncomingResolution(int width, int height);
+		int newIncomingResolution(int width, int height);
+	}
+
 }
