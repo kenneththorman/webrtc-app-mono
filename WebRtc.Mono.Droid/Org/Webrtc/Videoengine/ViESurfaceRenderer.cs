@@ -128,27 +128,6 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			dstBottomScale = bottom;
 		}
 
-		// It saves bitmap data to a JPEG picture, this function is for debug only.
-		private void saveBitmapToJPEG(int width, int height)
-		{
-			ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
-			bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, byteOutStream);
-
-			try
-			{
-				FileOutputStream output = new FileOutputStream(string.Format("/sdcard/render_{0:D}.jpg", DateTimeHelperClass.CurrentUnixTimeMillis()));
-				output.Write(byteOutStream.ToByteArray());
-				output.Flush();
-				output.Close();
-			}
-			catch (FileNotFoundException)
-			{
-			}
-			catch (IOException)
-			{
-			}
-		}
-
 		public virtual void DrawByteBuffer()
 		{
 			if (byteBuffer == null)
