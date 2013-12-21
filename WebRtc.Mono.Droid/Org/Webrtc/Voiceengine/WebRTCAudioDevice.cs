@@ -1,6 +1,4 @@
-﻿using System;
-
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -9,18 +7,18 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using System;
+using Android.Content;
+using Android.Media;
+using Android.OS;
+using Android.Util;
+using Java.Lang;
+using Java.Nio;
+using Java.Util.Concurrent.Locks;
+using Exception = System.Exception;
 
-namespace org.webrtc.voiceengine
+namespace WebRtc.Org.Webrtc.Voiceengine
 {
-
-
-	using Context = android.content.Context;
-	using AudioFormat = android.media.AudioFormat;
-	using AudioManager = android.media.AudioManager;
-	using AudioRecord = android.media.AudioRecord;
-	using AudioTrack = android.media.AudioTrack;
-	using Log = android.util.Log;
-
 	internal class WebRTCAudioDevice
 	{
 		private AudioTrack _audioTrack = null;
@@ -31,8 +29,8 @@ namespace org.webrtc.voiceengine
 
 		private ByteBuffer _playBuffer;
 		private ByteBuffer _recBuffer;
-		private sbyte[] _tempBufPlay;
-		private sbyte[] _tempBufRec;
+		private byte[] _tempBufPlay;
+		private byte[] _tempBufRec;
 
 		private readonly ReentrantLock _playLock = new ReentrantLock();
 		private readonly ReentrantLock _recLock = new ReentrantLock();
@@ -50,9 +48,9 @@ namespace org.webrtc.voiceengine
 		{
 			try
 			{
-				_playBuffer = ByteBuffer.allocateDirect(2 * 480); // Max 10 ms @ 48
+				_playBuffer = ByteBuffer.AllocateDirect(2 * 480); // Max 10 ms @ 48
 																  // kHz
-				_recBuffer = ByteBuffer.allocateDirect(2 * 480); // Max 10 ms @ 48
+				_recBuffer = ByteBuffer.AllocateDirect(2 * 480); // Max 10 ms @ 48
 																 // kHz
 			}
 			catch (Exception e)
@@ -60,16 +58,14 @@ namespace org.webrtc.voiceengine
 				DoLog(e.Message);
 			}
 
-			_tempBufPlay = new sbyte[2 * 480];
-			_tempBufRec = new sbyte[2 * 480];
+			_tempBufPlay = new byte[2 * 480];
+			_tempBufRec = new byte[2 * 480];
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int InitRecording(int audioSource, int sampleRate)
-		private int InitRecording(int audioSource, int sampleRate)
+		private int InitRecording(AudioSource audioSource, int sampleRate)
 		{
 			// get the minimum buffer size that can be used
-			int minRecBufSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+			int minRecBufSize = AudioRecord.GetMinBufferSize(sampleRate, ChannelIn.Mono, Encoding.Pcm16bit);
 
 			// DoLog("min rec buf size is " + minRecBufSize);
 
@@ -81,13 +77,13 @@ namespace org.webrtc.voiceengine
 			// release the object
 			if (_audioRecord != null)
 			{
-				_audioRecord.release();
+				_audioRecord.Release();
 				_audioRecord = null;
 			}
 
 			try
 			{
-				_audioRecord = new AudioRecord(audioSource, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, recBufSize);
+				_audioRecord = new AudioRecord(audioSource, sampleRate, ChannelIn.Mono, Encoding.Pcm16bit, recBufSize);
 
 			}
 			catch (Exception e)
@@ -97,7 +93,7 @@ namespace org.webrtc.voiceengine
 			}
 
 			// check that the audioRecord is ready to be used
-			if (_audioRecord.State != AudioRecord.STATE_INITIALIZED)
+			if (_audioRecord.State != State.Initialized)
 			{
 				// DoLog("rec not initialized " + sampleRate);
 				return -1;
@@ -108,8 +104,6 @@ namespace org.webrtc.voiceengine
 			return _bufferedRecSamples;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int StartRecording()
 		private int StartRecording()
 		{
 			if (_isPlaying == false)
@@ -120,7 +114,7 @@ namespace org.webrtc.voiceengine
 			// start recording
 			try
 			{
-				_audioRecord.startRecording();
+				_audioRecord.StartRecording();
 
 			}
 			catch (IllegalStateException e)
@@ -134,12 +128,10 @@ namespace org.webrtc.voiceengine
 			return 0;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int InitPlayback(int sampleRate)
 		private int InitPlayback(int sampleRate)
 		{
 			// get the minimum buffer size that can be used
-			int minPlayBufSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+			int minPlayBufSize = AudioTrack.GetMinBufferSize(sampleRate, ChannelOut.Mono, Encoding.Pcm16bit);
 
 			// DoLog("min play buf size is " + minPlayBufSize);
 
@@ -154,13 +146,13 @@ namespace org.webrtc.voiceengine
 			// release the object
 			if (_audioTrack != null)
 			{
-				_audioTrack.release();
+				_audioTrack.Release();
 				_audioTrack = null;
 			}
 
 			try
 			{
-				_audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, playBufSize, AudioTrack.MODE_STREAM);
+				_audioTrack = new AudioTrack(Stream.VoiceCall, sampleRate, ChannelConfiguration.Mono, Encoding.Pcm16bit, playBufSize, AudioTrackMode.Stream);
 			}
 			catch (Exception e)
 			{
@@ -169,7 +161,7 @@ namespace org.webrtc.voiceengine
 			}
 
 			// check that the audioRecord is ready to be used
-			if (_audioTrack.State != AudioTrack.STATE_INITIALIZED)
+			if (_audioTrack.State != AudioTrackState.Initialized)
 			{
 				// DoLog("play not initialized " + sampleRate);
 				return -1;
@@ -179,7 +171,7 @@ namespace org.webrtc.voiceengine
 
 			if (_audioManager == null && _context != null)
 			{
-				_audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
+				_audioManager = (AudioManager) _context.GetSystemService(Context.AudioService);
 			}
 
 			// Return max playout volume
@@ -189,11 +181,9 @@ namespace org.webrtc.voiceengine
 				// so we should not return error.
 				return 0;
 			}
-			return _audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
+			return _audioManager.GetStreamMaxVolume(Stream.VoiceCall);
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int StartPlayback()
 		private int StartPlayback()
 		{
 			if (_isRecording == false)
@@ -204,7 +194,7 @@ namespace org.webrtc.voiceengine
 			// start playout
 			try
 			{
-				_audioTrack.play();
+				_audioTrack.Play();
 
 			}
 			catch (IllegalStateException e)
@@ -218,20 +208,18 @@ namespace org.webrtc.voiceengine
 			return 0;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int StopRecording()
 		private int StopRecording()
 		{
-			_recLock.@lock();
+			_recLock.Lock();
 			try
 			{
 				// only stop if we are recording
-				if (_audioRecord.RecordingState == AudioRecord.RECORDSTATE_RECORDING)
+				if (_audioRecord.RecordingState == RecordState.Recording)
 				{
 					// stop recording
 					try
 					{
-						_audioRecord.stop();
+						_audioRecord.Stop();
 					}
 					catch (IllegalStateException e)
 					{
@@ -242,7 +230,7 @@ namespace org.webrtc.voiceengine
 				}
 
 				// release the object
-				_audioRecord.release();
+				_audioRecord.Release();
 				_audioRecord = null;
 
 			}
@@ -251,7 +239,7 @@ namespace org.webrtc.voiceengine
 				// Ensure we always unlock, both for success, exception or error
 				// return.
 				_doRecInit = true;
-				_recLock.unlock();
+				_recLock.Unlock();
 			}
 
 			if (_isPlaying == false)
@@ -263,20 +251,18 @@ namespace org.webrtc.voiceengine
 			return 0;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int StopPlayback()
 		private int StopPlayback()
 		{
-			_playLock.@lock();
+			_playLock.Lock();
 			try
 			{
 				// only stop if we are playing
-				if (_audioTrack.PlayState == AudioTrack.PLAYSTATE_PLAYING)
+				if (_audioTrack.PlayState == PlayState.Playing)
 				{
 					// stop playout
 					try
 					{
-						_audioTrack.stop();
+						_audioTrack.Stop();
 					}
 					catch (IllegalStateException e)
 					{
@@ -286,11 +272,11 @@ namespace org.webrtc.voiceengine
 					}
 
 					// flush the buffers
-					_audioTrack.flush();
+					_audioTrack.Flush();
 				}
 
 				// release the object
-				_audioTrack.release();
+				_audioTrack.Release();
 				_audioTrack = null;
 
 			}
@@ -299,7 +285,7 @@ namespace org.webrtc.voiceengine
 				// Ensure we always unlock, both for success, exception or error
 				// return.
 				_doPlayInit = true;
-				_playLock.unlock();
+				_playLock.Unlock();
 			}
 
 			if (_isRecording == false)
@@ -311,14 +297,12 @@ namespace org.webrtc.voiceengine
 			return 0;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int PlayAudio(int lengthInBytes)
 		private int PlayAudio(int lengthInBytes)
 		{
 
 			int bufferedSamples = 0;
 
-			_playLock.@lock();
+			_playLock.Lock();
 			try
 			{
 				if (_audioTrack == null)
@@ -332,7 +316,7 @@ namespace org.webrtc.voiceengine
 				{
 					try
 					{
-						android.os.Process.ThreadPriority = android.os.Process.THREAD_PRIORITY_URGENT_AUDIO;
+						Android.OS.Process.SetThreadPriority(ThreadPriority.UrgentAudio);
 					}
 					catch (Exception e)
 					{
@@ -342,9 +326,9 @@ namespace org.webrtc.voiceengine
 				}
 
 				int written = 0;
-				_playBuffer.get(_tempBufPlay);
-				written = _audioTrack.write(_tempBufPlay, 0, lengthInBytes);
-				_playBuffer.rewind(); // Reset the position to start of buffer
+				_playBuffer.Get(_tempBufPlay);
+				written = _audioTrack.Write(_tempBufPlay, 0, lengthInBytes);
+				_playBuffer.Rewind(); // Reset the position to start of buffer
 
 				// DoLog("Wrote data to sndCard");
 
@@ -377,17 +361,15 @@ namespace org.webrtc.voiceengine
 			{
 				// Ensure we always unlock, both for success, exception or error
 				// return.
-				_playLock.unlock();
+				_playLock.Unlock();
 			}
 
 			return bufferedSamples;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int RecordAudio(int lengthInBytes)
 		private int RecordAudio(int lengthInBytes)
 		{
-			_recLock.@lock();
+			_recLock.Lock();
 
 			try
 			{
@@ -398,11 +380,11 @@ namespace org.webrtc.voiceengine
 				}
 
 				// Set priority, only do once
-				if (_doRecInit == true)
+				if (_doRecInit)
 				{
 					try
 					{
-						android.os.Process.ThreadPriority = android.os.Process.THREAD_PRIORITY_URGENT_AUDIO;
+						Android.OS.Process.SetThreadPriority(ThreadPriority.UrgentAudio);
 					}
 					catch (Exception e)
 					{
@@ -412,10 +394,10 @@ namespace org.webrtc.voiceengine
 				}
 
 				int readBytes = 0;
-				_recBuffer.rewind(); // Reset the position to start of buffer
-				readBytes = _audioRecord.read(_tempBufRec, 0, lengthInBytes);
+				_recBuffer.Rewind(); // Reset the position to start of buffer
+				readBytes = _audioRecord.Read(_tempBufRec, 0, lengthInBytes);
 				// DoLog("read " + readBytes + "from SC");
-				_recBuffer.put(_tempBufRec);
+				_recBuffer.Put(_tempBufRec);
 
 				if (readBytes != lengthInBytes)
 				{
@@ -434,20 +416,18 @@ namespace org.webrtc.voiceengine
 			{
 				// Ensure we always unlock, both for success, exception or error
 				// return.
-				_recLock.unlock();
+				_recLock.Unlock();
 			}
 
 			return (_bufferedPlaySamples);
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int SetPlayoutSpeaker(boolean loudspeakerOn)
 		private int SetPlayoutSpeaker(bool loudspeakerOn)
 		{
 			// create audio manager if needed
 			if (_audioManager == null && _context != null)
 			{
-				_audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
+				_audioManager = (AudioManager) _context.GetSystemService(Context.AudioService);
 			}
 
 			if (_audioManager == null)
@@ -456,39 +436,39 @@ namespace org.webrtc.voiceengine
 				return -1;
 			}
 
-			int apiLevel = android.os.Build.VERSION.SDK_INT;
+			var apiLevel = Build.VERSION.SdkInt;
 
-			if ((3 == apiLevel) || (4 == apiLevel))
+			if ((BuildVersionCodes.Cupcake == apiLevel) || (BuildVersionCodes.Donut == apiLevel))
 			{
 				// 1.5 and 1.6 devices
 				if (loudspeakerOn)
 				{
 					// route audio to back speaker
-					_audioManager.Mode = AudioManager.MODE_NORMAL;
+					_audioManager.Mode = Mode.Normal;
 				}
 				else
 				{
 					// route audio to earpiece
-					_audioManager.Mode = AudioManager.MODE_IN_CALL;
+					_audioManager.Mode = Mode.InCall;
 				}
 			}
 			else
 			{
 				// 2.x devices
-				if ((android.os.Build.BRAND.Equals("Samsung") || android.os.Build.BRAND.Equals("samsung")) && ((5 == apiLevel) || (6 == apiLevel) || (7 == apiLevel)))
+				if ((Build.Brand.Equals("Samsung") || Build.Brand.Equals("samsung")) && ((BuildVersionCodes.Eclair == apiLevel) || (BuildVersionCodes.Eclair01 == apiLevel) || (BuildVersionCodes.EclairMr1 == apiLevel)))
 				{
 					// Samsung 2.0, 2.0.1 and 2.1 devices
 					if (loudspeakerOn)
 					{
 						// route audio to back speaker
-						_audioManager.Mode = AudioManager.MODE_IN_CALL;
+						_audioManager.Mode = Mode.InCall;
 						_audioManager.SpeakerphoneOn = loudspeakerOn;
 					}
 					else
 					{
 						// route audio to earpiece
 						_audioManager.SpeakerphoneOn = loudspeakerOn;
-						_audioManager.Mode = AudioManager.MODE_NORMAL;
+						_audioManager.Mode = Mode.Normal;
 					}
 				}
 				else
@@ -501,44 +481,40 @@ namespace org.webrtc.voiceengine
 			return 0;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int SetPlayoutVolume(int level)
 		private int SetPlayoutVolume(int level)
 		{
 
 			// create audio manager if needed
 			if (_audioManager == null && _context != null)
 			{
-				_audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
+				_audioManager = (AudioManager) _context.GetSystemService(Context.AudioService);
 			}
 
 			int retVal = -1;
 
 			if (_audioManager != null)
 			{
-				_audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, level, 0);
+				_audioManager.SetStreamVolume(Stream.VoiceCall, level, 0);
 				retVal = 0;
 			}
 
 			return retVal;
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int GetPlayoutVolume()
 		private int GetPlayoutVolume()
 		{
 
 			// create audio manager if needed
 			if (_audioManager == null && _context != null)
 			{
-				_audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
+				_audioManager = (AudioManager) _context.GetSystemService(Context.AudioService);
 			}
 
 			int level = -1;
 
 			if (_audioManager != null)
 			{
-				level = _audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+				level = _audioManager.GetStreamVolume(Stream.VoiceCall);
 			}
 
 			return level;
@@ -546,11 +522,11 @@ namespace org.webrtc.voiceengine
 
 		private void SetAudioMode(bool startCall)
 		{
-			int apiLevel = android.os.Build.VERSION.SDK_INT;
+			var apiLevel = Build.VERSION.SdkInt;
 
 			if (_audioManager == null && _context != null)
 			{
-				_audioManager = (AudioManager) _context.getSystemService(Context.AUDIO_SERVICE);
+				_audioManager = (AudioManager) _context.GetSystemService(Context.AudioService);
 			}
 
 			if (_audioManager == null)
@@ -562,11 +538,11 @@ namespace org.webrtc.voiceengine
 			// ***IMPORTANT*** When the API level for honeycomb (H) has been
 			// decided,
 			// the condition should be changed to include API level 8 to H-1.
-			if ((android.os.Build.BRAND.Equals("Samsung") || android.os.Build.BRAND.Equals("samsung")) && (8 == apiLevel))
+			if ((Build.Brand.Equals("Samsung") || Build.Brand.Equals("samsung")) && (BuildVersionCodes.Froyo == apiLevel))
 			{
 				// Set Samsung specific VoIP mode for 2.2 devices
 				// 4 is VoIP mode
-				int mode = (startCall ? 4 : AudioManager.MODE_NORMAL);
+				var mode = (startCall ? Mode.InCall : Mode.Normal);
 				_audioManager.Mode = mode;
 				if (_audioManager.Mode != mode)
 				{
@@ -579,12 +555,12 @@ namespace org.webrtc.voiceengine
 
 		private void DoLog(string msg)
 		{
-			Log.d(logTag, msg);
+			Log.Debug(logTag, msg);
 		}
 
 		private void DoLogErr(string msg)
 		{
-			Log.e(logTag, msg);
+			Log.Error(logTag, msg);
 		}
 	}
 
