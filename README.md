@@ -6,5 +6,5 @@ Goal:
 
 Roadmap:
  - Porting WebRTC demo app to C# - Mono.Touch (Xamarin)
- - Achieving code reuse by moving the code to the MVVMCross framework
+ - Hoping to achieve some code reuse by moving some of the code to the MVVMCross framework (although it looks like UI (platform specific) code most of it)
 
