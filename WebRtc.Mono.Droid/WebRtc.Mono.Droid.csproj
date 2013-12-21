@@ -59,15 +59,6 @@
     <None Include="src\video_engine\test\android\project.properties" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\Layout\Main.axml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\Values\Strings.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\Drawable\Icon.png" />
-  </ItemGroup>
-  <ItemGroup>
     <TransformFile Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -116,7 +107,11 @@
   <ItemGroup>
     <None Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.java" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\Drawable\" />
+    <Folder Include="Resources\Layout\" />
+    <Folder Include="Resources\Values\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.java" />
   </ItemGroup>
