@@ -1,6 +1,4 @@
-﻿using System;
-
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -12,14 +10,13 @@
 
 // The functions in this file are called from native code. They can still be
 // accessed even though they are declared private.
+using System;
+using Android.Content;
+using Android.Content.PM;
+using Android.Media;
 
-namespace org.webrtc.voiceengine
+namespace WebRtc.Org.Webrtc.Voiceengine
 {
-
-	using Context = android.content.Context;
-	using PackageManager = android.content.pm.PackageManager;
-	using AudioManager = android.media.AudioManager;
-
 	internal class AudioManagerAndroid
 	{
 	  // Most of Google lead devices use 44.1K as the default sampling rate, 44.1K
@@ -35,32 +32,28 @@ namespace org.webrtc.voiceengine
 	  private int mAudioLowLatencyOutputFrameSize;
 
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private AudioManagerAndroid(android.content.Context context)
 	  private AudioManagerAndroid(Context context)
 	  {
-		AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		AudioManager audioManager = (AudioManager) context.GetSystemService(Context.AudioService);
 
 		mNativeOutputSampleRate = DEFAULT_SAMPLING_RATE;
 		mAudioLowLatencyOutputFrameSize = DEFAULT_FRAMES_PER_BUFFER;
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1)
+		if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.JellyBeanMr1)
 		{
-		  string sampleRateString = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
+		  string sampleRateString = audioManager.GetProperty(AudioManager.PropertyOutputSampleRate);
 		  if (sampleRateString != null)
 		  {
 			mNativeOutputSampleRate = Convert.ToInt32(sampleRateString);
 		  }
-		  string framesPerBuffer = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
+		  string framesPerBuffer = audioManager.GetProperty(AudioManager.PropertyOutputFramesPerBuffer);
 		  if (framesPerBuffer != null)
 		  {
 			  mAudioLowLatencyOutputFrameSize = Convert.ToInt32(framesPerBuffer);
 		  }
 		}
-		mAudioLowLatencySupported = context.PackageManager.hasSystemFeature(PackageManager.FEATURE_AUDIO_LOW_LATENCY);
+		mAudioLowLatencySupported = context.PackageManager.HasSystemFeature(PackageManager.FeatureAudioLowLatency);
 	  }
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int getNativeOutputSampleRate()
 		private int NativeOutputSampleRate
 		{
 			get
@@ -69,8 +62,6 @@ namespace org.webrtc.voiceengine
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private boolean isAudioLowLatencySupported()
 		private bool AudioLowLatencySupported
 		{
 			get
@@ -79,8 +70,6 @@ namespace org.webrtc.voiceengine
 			}
 		}
 
-//JAVA TO C# CONVERTER TODO TASK: Most Java annotations will not have direct .NET equivalent attributes:
-//ORIGINAL LINE: @SuppressWarnings("unused") private int getAudioLowLatencyOutputFrameSize()
 		private int AudioLowLatencyOutputFrameSize
 		{
 			get
