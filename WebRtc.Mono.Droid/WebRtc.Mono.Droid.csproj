@@ -54,9 +54,39 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\DateTimeHelperClass.cs" />
+    <Compile Include="IViEAndroidCallback.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\DateTimeHelperClass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\ViERenderer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViEAndroidJavaAPI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WebRTCDemo.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidNativeLibrary Include="lib\armeabi-v7a\libwebrtc-video-demo-jni.so" />
@@ -65,9 +95,6 @@
     <None Include="src\video_engine\test\android\gen\R.java.d" />
     <None Include="src\video_engine\test\android\libs\armeabi-v7a\libwebrtc-video-demo-jni.so" />
     <None Include="src\video_engine\test\android\project.properties" />
-  </ItemGroup>
-  <ItemGroup>
-    <TransformFile Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\modules\audio_device\android\java\src\org\webrtc\voiceengine\AudioManagerAndroid.java" />
@@ -101,61 +128,17 @@
     <None Include="src\video_engine\test\android\src\org\webrtc\videoengine\ViEMediaCodecDecoder.java" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IViEAndroidCallback.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ViEAndroidJavaAPI.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="WebRTCDemo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\ViERenderer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.cs" />
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="Properties\AndroidManifest.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <AndroidResource Include="Resources\Drawable\logo.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\aconfig.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\both.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\main.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\row.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\send.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\tabhost.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Layout\vconfig.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\Values\strings.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
