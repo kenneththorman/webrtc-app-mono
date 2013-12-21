@@ -1,4 +1,10 @@
 webrtc-app-mono-mvvmcross
 =========================
 
-Porting WebRTC app to C# - Mono.Android (and iOS in the future - hoping for code reuse using MVVMCross)
+Goal: 
+Porting WebRTC demo app (https://code.google.com/p/webrtc/source/browse/trunk/webrtc/LICENSE) to C# - Mono.Android (Xamarin)
+
+Roadmap:
+ - Porting WebRTC demo app to C# - Mono.Touch (Xamarin)
+ - Achieving code reuse by moving the code to the MVVMCross framework
+
