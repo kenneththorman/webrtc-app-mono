@@ -8,14 +8,14 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-namespace org.webrtc.videoengineapp
+namespace WebRtc
 {
 
 	public interface IViEAndroidCallback
 	{
-		int updateStats(int frameRateI, int bitRateI, int packetLoss, int frameRateO, int bitRateO);
+		int UpdateStats(int frameRateI, int bitRateI, int packetLoss, int frameRateO, int bitRateO);
 
-		int newIncomingResolution(int width, int height);
+		int NewIncomingResolution(int width, int height);
 	}
 
 }

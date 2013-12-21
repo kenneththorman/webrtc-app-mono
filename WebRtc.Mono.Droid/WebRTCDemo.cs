@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -9,61 +7,23 @@ using System.Collections.Generic;
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
-using WebRtc;
+using System;
+using System.Collections.Generic;
+using Android.App;
+using Android.Content;
+using Android.Hardware;
+using Android.OS;
+using Android.Util;
+using Android.Views;
+using Android.Widget;
+using Java.Lang;
+using Java.Net;
+using Environment = System.Environment;
+using Math = System.Math;
 
-namespace org.webrtc.videoengineapp
+namespace WebRtc
 {
-
-	using AlertDialog = android.app.AlertDialog;
-	using TabActivity = android.app.TabActivity;
-	using BroadcastReceiver = android.content.BroadcastReceiver;
-	using Context = android.content.Context;
-	using DialogInterface = android.content.DialogInterface;
-	using Intent = android.content.Intent;
-	using IntentFilter = android.content.IntentFilter;
-	using ActivityInfo = android.content.pm.ActivityInfo;
-	using Configuration = android.content.res.Configuration;
-	using Canvas = android.graphics.Canvas;
-	using Paint = android.graphics.Paint;
-	using PixelFormat = android.graphics.PixelFormat;
-	using Camera = android.hardware.Camera;
-	using CameraInfo = android.hardware.Camera.CameraInfo;
-	using SensorManager = android.hardware.SensorManager;
-	using AudioManager = android.media.AudioManager;
-	using MediaPlayer = android.media.MediaPlayer;
-	using Uri = android.net.Uri;
-	using Bundle = android.os.Bundle;
-	using Environment = android.os.Environment;
-	using Handler = android.os.Handler;
-	using Log = android.util.Log;
-	using Display = android.view.Display;
-	using Gravity = android.view.Gravity;
-	using KeyEvent = android.view.KeyEvent;
-	using LayoutInflater = android.view.LayoutInflater;
-	using OrientationEventListener = android.view.OrientationEventListener;
-	using Surface = android.view.Surface;
-	using SurfaceView = android.view.SurfaceView;
-	using View = android.view.View;
-	using ViewGroup = android.view.ViewGroup;
-	using Window = android.view.Window;
-	using WindowManager = android.view.WindowManager;
-	using AdapterView = android.widget.AdapterView;
-	using OnItemSelectedListener = android.widget.AdapterView.OnItemSelectedListener;
-	using ArrayAdapter = android.widget.ArrayAdapter;
-	using Button = android.widget.Button;
-	using CheckBox = android.widget.CheckBox;
-	using EditText = android.widget.EditText;
-	using LinearLayout = android.widget.LinearLayout;
-	using RadioGroup = android.widget.RadioGroup;
-	using Spinner = android.widget.Spinner;
-	using TabHost = android.widget.TabHost;
-	using TabSpec = android.widget.TabHost.TabSpec;
-	using TextView = android.widget.TextView;
-
-	using ViERenderer = org.webrtc.videoengine.ViERenderer;
-
-
-	public class WebRTCDemo : TabActivity, IViEAndroidCallback, View.OnClickListener, AdapterView.OnItemSelectedListener
+	public class WebRTCDemo : TabActivity, IViEAndroidCallback, View.IOnClickListener, AdapterView.IOnItemSelectedListener
 	{
 		private ViEAndroidJavaAPI vieAndroidAPI = null;
 
@@ -97,16 +57,23 @@ namespace org.webrtc.videoengineapp
 		private Handler handler = new Handler();
 		private Runnable startOrStopCallback = new RunnableAnonymousInnerClassHelper();
 
-		private class RunnableAnonymousInnerClassHelper : Runnable
+		private class RunnableAnonymousInnerClassHelper : IRunnable
 		{
 			public RunnableAnonymousInnerClassHelper()
 			{
 			}
 
-			public virtual void run()
+			public virtual void Run()
 			{
 				outerInstance.startOrStop();
 			}
+
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
+
+			public IntPtr Handle { get; private set; }
 		}
 
 		private int volumeLevel = 204;
@@ -201,7 +168,7 @@ namespace org.webrtc.videoengineapp
 		private string[] mVoiceCodecsStrings = null;
 
 		private OrientationEventListener orientationListener;
-		internal int currentDeviceOrientation = OrientationEventListener.ORIENTATION_UNKNOWN;
+		internal int currentDeviceOrientation = OrientationEventListener.OrientationUnknown;
 
 		private StatsView statsView = null;
 
@@ -220,7 +187,7 @@ namespace org.webrtc.videoengineapp
 			Camera.CameraInfo info = new Camera.CameraInfo();
 			for (int i = 0; i < Camera.NumberOfCameras; ++i)
 			{
-				Camera.getCameraInfo(i, info);
+				Camera.GetCameraInfo(i, info);
 				if (cameraOrientations[info.facing] != -1)
 				{
 					continue;
@@ -266,7 +233,7 @@ namespace org.webrtc.videoengineapp
 		// Called when the activity is first created.
 		public override void onCreate(Bundle savedInstanceState)
 		{
-			Log.d(TAG, "onCreate");
+			Log.Debug(TAG, "onCreate");
 
 			base.onCreate(savedInstanceState);
 			requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -365,12 +332,12 @@ namespace org.webrtc.videoengineapp
 		{
 			private readonly WebRTCDemo outerInstance;
 
-			public OrientationEventListenerAnonymousInnerClassHelper(WebRTCDemo outerInstance, org.webrtc.videoengineapp.WebRTCDemo this, UnknownType SENSOR_DELAY_UI) : base(this, SENSOR_DELAY_UI)
+			public OrientationEventListenerAnonymousInnerClassHelper(WebRTCDemo outerInstance, WebRTCDemo this, UnknownType SENSOR_DELAY_UI) : base(this, SENSOR_DELAY_UI)
 			{
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void onOrientationChanged(int orientation)
+			public virtual void OnOrientationChanged(int orientation)
 			{
 				if (orientation != ORIENTATION_UNKNOWN)
 				{
@@ -381,9 +348,9 @@ namespace org.webrtc.videoengineapp
 		}
 
 		// Called before the activity is destroyed.
-		public override void onDestroy()
+		public override void OnDestroy()
 		{
-			Log.d(TAG, "onDestroy");
+			Log.Debug(TAG, "onDestroy");
 			handler.removeCallbacks(startOrStopCallback);
 			unregisterReceiver(receiver);
 			base.onDestroy();
@@ -453,7 +420,7 @@ namespace org.webrtc.videoengineapp
 				}
 				catch (SocketException ex)
 				{
-					Log.e(TAG, ex.ToString());
+					Log.Error(TAG, ex.ToString());
 				}
 				return localIPs;
 			}
@@ -476,7 +443,7 @@ namespace org.webrtc.videoengineapp
 
 		private void stopAll()
 		{
-			Log.d(TAG, "stopAll");
+			Log.Debug(TAG, "stopAll");
 
 			if (vieAndroidAPI != null)
 			{
@@ -828,31 +795,31 @@ namespace org.webrtc.videoengineapp
 			// Stop send
 			if (0 != vieAndroidAPI.VoE_StopSend(voiceChannel))
 			{
-				Log.d(TAG, "VoE stop send failed");
+				Log.Debug(TAG, "VoE stop send failed");
 			}
 
 			// Stop listen
 			if (0 != vieAndroidAPI.VoE_StopListen(voiceChannel))
 			{
-				Log.d(TAG, "VoE stop listen failed");
+				Log.Debug(TAG, "VoE stop listen failed");
 			}
 
 			// Stop playout
 			if (0 != vieAndroidAPI.VoE_StopPlayout(voiceChannel))
 			{
-				Log.d(TAG, "VoE stop playout failed");
+				Log.Debug(TAG, "VoE stop playout failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_DeleteChannel(voiceChannel))
 			{
-				Log.d(TAG, "VoE delete channel failed");
+				Log.Debug(TAG, "VoE delete channel failed");
 			}
 			voiceChannel = -1;
 
 			// Terminate
 			if (0 != vieAndroidAPI.VoE_Terminate())
 			{
-				Log.d(TAG, "VoE terminate failed");
+				Log.Debug(TAG, "VoE terminate failed");
 			}
 		}
 
@@ -865,7 +832,7 @@ namespace org.webrtc.videoengineapp
 			// Initialize
 			if (0 != vieAndroidAPI.VoE_Init(enableTrace))
 			{
-				Log.d(TAG, "VoE init failed");
+				Log.Debug(TAG, "VoE init failed");
 				return -1;
 			}
 
@@ -880,19 +847,19 @@ namespace org.webrtc.videoengineapp
 			voiceChannel = vieAndroidAPI.VoE_CreateChannel();
 			if (0 > voiceChannel)
 			{
-				Log.d(TAG, "VoE create channel failed");
+				Log.Debug(TAG, "VoE create channel failed");
 				return -1;
 			}
 
 			// Set local receiver
 			if (0 != vieAndroidAPI.VoE_SetLocalReceiver(voiceChannel, receivePortVoice))
 			{
-				Log.d(TAG, "VoE set local receiver failed");
+				Log.Debug(TAG, "VoE set local receiver failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_StartListen(voiceChannel))
 			{
-				Log.d(TAG, "VoE start listen failed");
+				Log.Debug(TAG, "VoE start listen failed");
 			}
 
 			// Route audio
@@ -901,43 +868,43 @@ namespace org.webrtc.videoengineapp
 			// set volume to default value
 			if (0 != vieAndroidAPI.VoE_SetSpeakerVolume(volumeLevel))
 			{
-				Log.d(TAG, "VoE set speaker volume failed");
+				Log.Debug(TAG, "VoE set speaker volume failed");
 			}
 
 			// Start playout
 			if (0 != vieAndroidAPI.VoE_StartPlayout(voiceChannel))
 			{
-				Log.d(TAG, "VoE start playout failed");
+				Log.Debug(TAG, "VoE start playout failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_SetSendDestination(voiceChannel, destinationPortVoice, RemoteIPString))
 			{
-				Log.d(TAG, "VoE set send  destination failed");
+				Log.Debug(TAG, "VoE set send  destination failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
 			{
-				Log.d(TAG, "VoE set send codec failed");
+				Log.Debug(TAG, "VoE set send codec failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_SetECStatus(enableAECM))
 			{
-				Log.d(TAG, "VoE set EC Status failed");
+				Log.Debug(TAG, "VoE set EC Status failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_SetAGCStatus(enableAGC))
 			{
-				Log.d(TAG, "VoE set AGC Status failed");
+				Log.Debug(TAG, "VoE set AGC Status failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_SetNSStatus(enableNS))
 			{
-				Log.d(TAG, "VoE set NS Status failed");
+				Log.Debug(TAG, "VoE set NS Status failed");
 			}
 
 			if (0 != vieAndroidAPI.VoE_StartSend(voiceChannel))
 			{
-				Log.d(TAG, "VoE start send failed");
+				Log.Debug(TAG, "VoE start send failed");
 			}
 
 			voERunning = true;
@@ -948,7 +915,7 @@ namespace org.webrtc.videoengineapp
 		{
 			if (0 != vieAndroidAPI.VoE_SetLoudspeakerStatus(enableSpeaker))
 			{
-				Log.d(TAG, "VoE set louspeaker status failed");
+				Log.Debug(TAG, "VoE set louspeaker status failed");
 			}
 		}
 
@@ -1154,14 +1121,14 @@ namespace org.webrtc.videoengineapp
 				{
 					if (0 != vieAndroidAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE))
 					{
-						Log.d(TAG, "ViE set receive codec failed");
+						Log.Debug(TAG, "ViE set receive codec failed");
 					}
 				}
 				if (enableVideoSend)
 				{
 					if (0 != vieAndroidAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE))
 					{
-						Log.d(TAG, "ViE set send codec failed");
+						Log.Debug(TAG, "ViE set send codec failed");
 					}
 				}
 			}
@@ -1171,14 +1138,14 @@ namespace org.webrtc.videoengineapp
 				readSettings();
 				if (0 != vieAndroidAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
 				{
-					Log.d(TAG, "VoE set send codec failed");
+					Log.Debug(TAG, "VoE set send codec failed");
 				}
 			}
 		}
 
 		public virtual void onNothingSelected<T1>(AdapterView<T1> arg0)
 		{
-			Log.d(TAG, "No setting selected");
+			Log.Debug(TAG, "No setting selected");
 		}
 
 		public virtual int UpdateStats(int inFrameRateI, int inBitRateI, int inPacketLoss, int inFrameRateO, int inBitRateO)
