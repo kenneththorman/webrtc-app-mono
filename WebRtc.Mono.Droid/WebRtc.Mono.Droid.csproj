@@ -92,35 +92,35 @@
     <None Include="src\video_engine\test\android\src\org\webrtc\videoengine\ViEMediaCodecDecoder.java" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IViEAndroidCallback.java" />
+    <Compile Include="IViEAndroidCallback.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ViEAndroidJavaAPI.java" />
+    <Compile Include="ViEAndroidJavaAPI.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="WebRTCDemo.java" />
+    <Compile Include="WebRTCDemo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.java" />
+    <Compile Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.java" />
+    <Compile Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.java" />
+    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.java" />
+    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.java" />
+    <Compile Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Videoengine\ViERenderer.java" />
+    <Compile Include="Org\Webrtc\Videoengine\ViERenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.java" />
+    <Compile Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Drawable\logo.png" />
