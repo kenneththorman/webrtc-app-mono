@@ -9,7 +9,6 @@
  */
 using System;
 using System.Collections.Generic;
-using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -30,6 +29,7 @@ using Math = System.Math;
 
 namespace WebRtc
 {
+	[Activity(Label = "WebRtc.Mono.Droid", MainLauncher = true, Icon = "@drawable/logo")]
 	public class WebRTCDemo : TabActivity, IViEAndroidCallback, View.IOnClickListener, AdapterView.IOnItemSelectedListener
 	{
 		private ViEAndroidJavaAPI vieAndroidAPI = null;
