@@ -11,13 +11,19 @@ using System;
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
+using Android.Graphics;
 using Android.Hardware;
+using Android.Media;
 using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.IO;
 using Java.Lang;
 using Java.Net;
+using WebRtc.Org.Webrtc.Videoengine;
+using Camera = Android.Hardware.Camera;
 using Environment = System.Environment;
 using Math = System.Math;
 
@@ -55,7 +61,7 @@ namespace WebRtc
 		private const long AUTO_CALL_RESTART_DELAY_MS = 0;
 
 		private Handler handler = new Handler();
-		private Runnable startOrStopCallback = new RunnableAnonymousInnerClassHelper();
+		private IRunnable startOrStopCallback = new RunnableAnonymousInnerClassHelper();
 
 		private class RunnableAnonymousInnerClassHelper : IRunnable
 		{
@@ -63,9 +69,9 @@ namespace WebRtc
 			{
 			}
 
-			public virtual void Run()
+			public void Run()
 			{
-				outerInstance.startOrStop();
+				StartOrStop();
 			}
 
 			public void Dispose()
@@ -197,9 +203,9 @@ namespace WebRtc
 		}
 
 		// Return the |CameraInfo.facing| value appropriate for |usingFrontCamera|.
-		private static int facingOf(bool usingFrontCamera)
+		private static CameraFacing facingOf(bool usingFrontCamera)
 		{
-			return usingFrontCamera ? Camera.CameraInfo.CAMERA_FACING_FRONT : Camera.CameraInfo.CAMERA_FACING_BACK;
+			return usingFrontCamera ? Camera.CameraInfo.CameraFacingFront: Camera.CameraInfo.CameraFacingBack;
 		}
 
 		// This function ensures that egress streams always send real world up
@@ -231,69 +237,69 @@ namespace WebRtc
 		}
 
 		// Called when the activity is first created.
-		public override void onCreate(Bundle savedInstanceState)
+		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			Log.Debug(TAG, "onCreate");
 
-			base.onCreate(savedInstanceState);
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-			Window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			Window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-			RequestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			base.OnCreate(savedInstanceState);
+			RequestWindowFeature(WindowFeatures.NoTitle);
+			Window.AddFlags(WindowManagerFlags.Fullscreen);
+			Window.AddFlags(WindowManagerFlags.KeepScreenOn);
+			RequestedOrientation = ScreenOrientation.Landscape;
 
 			populateCameraOrientations();
 
-			ContentView = R.layout.tabhost;
+			SetContentView(Resource.Layout.tabhost);
 
-			IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+			IntentFilter receiverFilter = new IntentFilter(Intent.ActionHeadsetPlug);
 
 			receiver = new BroadcastReceiverAnonymousInnerClassHelper(this);
-			registerReceiver(receiver, receiverFilter);
+			RegisterReceiver(receiver, receiverFilter);
 
 			mTabHost = TabHost;
 
 			// Main tab
-			mTabSpecVideo = mTabHost.newTabSpec("tab_video");
-			mTabSpecVideo.Indicator = "Main";
-			mTabSpecVideo.Content = R.id.tab_video;
-			mTabHost.addTab(mTabSpecVideo);
+			mTabSpecVideo = mTabHost.NewTabSpec("tab_video");
+			mTabSpecVideo.SetIndicator("Main");
+			mTabSpecVideo.SetContent(Resource.Id.tab_video);
+			mTabHost.AddTab(mTabSpecVideo);
 
 			// Shared config tab
 			mTabHost = TabHost;
-			mTabSpecConfig = mTabHost.newTabSpec("tab_config");
-			mTabSpecConfig.Indicator = "Settings";
-			mTabSpecConfig.Content = R.id.tab_config;
-			mTabHost.addTab(mTabSpecConfig);
+			mTabSpecConfig = mTabHost.NewTabSpec("tab_config");
+			mTabSpecConfig.SetIndicator("Settings");
+			mTabSpecConfig.SetContent(Resource.Id.tab_config);
+			mTabHost.AddTab(mTabSpecConfig);
 
 			TabHost.TabSpec mTabv;
-			mTabv = mTabHost.newTabSpec("tab_vconfig");
-			mTabv.Indicator = "Video";
-			mTabv.Content = R.id.tab_vconfig;
-			mTabHost.addTab(mTabv);
+			mTabv = mTabHost.NewTabSpec("tab_vconfig");
+			mTabv.SetIndicator("Video");
+			mTabv.SetContent(Resource.Id.tab_vconfig);
+			mTabHost.AddTab(mTabv);
 			TabHost.TabSpec mTaba;
-			mTaba = mTabHost.newTabSpec("tab_aconfig");
-			mTaba.Indicator = "Audio";
-			mTaba.Content = R.id.tab_aconfig;
-			mTabHost.addTab(mTaba);
+			mTaba = mTabHost.NewTabSpec("tab_aconfig");
+			mTaba.SetIndicator("Audio");
+			mTaba.SetContent(Resource.Id.tab_aconfig);
+			mTabHost.AddTab(mTaba);
 
 			int childCount = mTabHost.TabWidget.ChildCount;
 			for (int i = 0; i < childCount; i++)
 			{
-				mTabHost.TabWidget.getChildAt(i).LayoutParams.height = 50;
+				mTabHost.TabWidget.GetChildAt(i).LayoutParameters.Height = 50;
 			}
-			orientationListener = new OrientationEventListenerAnonymousInnerClassHelper(this, this, SensorManager.SENSOR_DELAY_UI);
-			orientationListener.enable();
+			orientationListener = new OrientationEventListenerAnonymousInnerClassHelper(this, SensorDelay.Ui);
+			orientationListener.Enable();
 
 			// Create a folder named webrtc in /scard for debugging
-			webrtcDebugDir = Environment.ExternalStorageDirectory.ToString() + webrtcName;
+			webrtcDebugDir = Android.OS.Environment.ExternalStorageDirectory.ToString() + webrtcName;
 			File webrtcDir = new File(webrtcDebugDir);
-			if (!webrtcDir.exists() && webrtcDir.mkdir() == false)
+			if (!webrtcDir.Exists() && webrtcDir.Mkdir() == false)
 			{
-				Log.v(TAG, "Failed to create " + webrtcDebugDir);
+				Log.Verbose(TAG, "Failed to create " + webrtcDebugDir);
 			}
-			else if (!webrtcDir.Directory)
+			else if (!webrtcDir.IsAbsolute)
 			{
-				Log.v(TAG, webrtcDebugDir + " exists but not a folder");
+				Log.Verbose(TAG, webrtcDebugDir + " exists but not a folder");
 				webrtcDebugDir = null;
 			}
 
@@ -301,7 +307,7 @@ namespace WebRtc
 
 			if (AUTO_CALL_RESTART_DELAY_MS > 0)
 			{
-				startOrStop();
+				StartOrStop();
 			}
 		}
 
@@ -314,15 +320,15 @@ namespace WebRtc
 				this.outerInstance = outerInstance;
 			}
 
-			public override void onReceive(Context context, Intent intent)
+			public override void OnReceive(Context context, Intent intent)
 			{
-				if (intent.Action.compareTo(Intent.ACTION_HEADSET_PLUG) == 0)
+				if (intent.Action.CompareTo(Intent.ActionHeadsetPlug) == 0)
 				{
-					int state = intent.getIntExtra("state", 0);
-					Log.v(TAG, "Intent.ACTION_HEADSET_PLUG state: " + state + " microphone: " + intent.getIntExtra("microphone", 0));
+					int state = intent.GetIntExtra("state", 0);
+					Log.Verbose(TAG, "Intent.ACTION_HEADSET_PLUG state: " + state + " microphone: " + intent.GetIntExtra("microphone", 0));
 					if (outerInstance.voERunning)
 					{
-						outerInstance.routeAudio(state == 0 && outerInstance.cbEnableSpeaker.Checked);
+						outerInstance.RouteAudio(state == 0 && outerInstance.cbEnableSpeaker.Checked);
 					}
 				}
 			}
@@ -332,14 +338,15 @@ namespace WebRtc
 		{
 			private readonly WebRTCDemo outerInstance;
 
-			public OrientationEventListenerAnonymousInnerClassHelper(WebRTCDemo outerInstance, WebRTCDemo this, UnknownType SENSOR_DELAY_UI) : base(this, SENSOR_DELAY_UI)
+			public OrientationEventListenerAnonymousInnerClassHelper(WebRTCDemo outerInstance, SensorDelay sensorDelayUI)
+				: base(outerInstance, SensorDelay.Ui)
 			{
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void OnOrientationChanged(int orientation)
+			public override void OnOrientationChanged(int orientation)
 			{
-				if (orientation != ORIENTATION_UNKNOWN)
+				if (orientation != OrientationUnknown)
 				{
 					outerInstance.currentDeviceOrientation = orientation;
 					outerInstance.compensateCameraRotation();
@@ -348,12 +355,12 @@ namespace WebRtc
 		}
 
 		// Called before the activity is destroyed.
-		public override void OnDestroy()
+		protected override void OnDestroy()
 		{
 			Log.Debug(TAG, "onDestroy");
-			handler.removeCallbacks(startOrStopCallback);
-			unregisterReceiver(receiver);
-			base.onDestroy();
+			handler.RemoveCallbacks(startOrStopCallback);
+			UnregisterReceiver(receiver);
+			base.OnDestroy();
 		}
 
 		private class StatsView : View
@@ -365,33 +372,33 @@ namespace WebRtc
 				this.outerInstance = outerInstance;
 			}
 
-			protected internal override void onDraw(Canvas canvas)
+			protected override void OnDraw(Canvas canvas)
 			{
-				base.onDraw(canvas);
+				base.OnDraw(canvas);
 				// Only draw Stats in Main tab.
 				if (outerInstance.mTabHost.CurrentTabTag == "tab_video")
 				{
 					Paint loadPaint = new Paint();
 					loadPaint.AntiAlias = true;
 					loadPaint.TextSize = 16;
-					loadPaint.setARGB(255, 255, 255, 255);
+					loadPaint.SetARGB(255, 255, 255, 255);
 
-					canvas.drawText("#calls " + outerInstance.numCalls, 4, 222, loadPaint);
+					canvas.DrawText("#calls " + outerInstance.numCalls, 4, 222, loadPaint);
 
 					string loadText;
 					loadText = "> " + outerInstance.frameRateI + " fps/" + outerInstance.bitRateI / 1024 + " kbps/ " + outerInstance.packetLoss;
-					canvas.drawText(loadText, 4, 242, loadPaint);
+					canvas.DrawText(loadText, 4, 242, loadPaint);
 					loadText = "< " + outerInstance.frameRateO + " fps/ " + outerInstance.bitRateO / 1024 + " kbps";
-					canvas.drawText(loadText, 4, 262, loadPaint);
+					canvas.DrawText(loadText, 4, 262, loadPaint);
 					loadText = "Incoming resolution " + outerInstance.widthI + "x" + outerInstance.heightI;
-					canvas.drawText(loadText, 4, 282, loadPaint);
+					canvas.DrawText(loadText, 4, 282, loadPaint);
 				}
-				updateDisplay();
+				UpdateDisplay();
 			}
 
-			internal virtual void updateDisplay()
+			internal virtual void UpdateDisplay()
 			{
-				invalidate();
+				Invalidate();
 			}
 		}
 
@@ -408,7 +415,7 @@ namespace WebRtc
 						for (IEnumerator<InetAddress> enumIpAddr = intf.InetAddresses; enumIpAddr.MoveNext();)
 						{
 							InetAddress inetAddress = enumIpAddr.Current;
-							if (!inetAddress.LoopbackAddress)
+							if (inetAddress != InetAddress.LoopbackAddress)
 							{
 								localIPs += inetAddress.HostAddress.ToString() + " ";
 								// Set the remote ip address the same as
@@ -426,22 +433,22 @@ namespace WebRtc
 			}
 		}
 
-		public override bool onKeyDown(int keyCode, KeyEvent @event)
+		public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
 		{
-			if (keyCode == KeyEvent.KEYCODE_BACK)
+			if (keyCode == Keycode.Back)
 			{
 				if (viERunning)
 				{
-					stopAll();
+					StopAll();
 					startMain();
 				}
-				finish();
+				Finish();
 				return true;
 			}
-			return base.onKeyDown(keyCode, @event);
+			return base.OnKeyDown(keyCode, e);
 		}
 
-		private void stopAll()
+		private void StopAll()
 		{
 			Log.Debug(TAG, "stopAll");
 
@@ -457,16 +464,16 @@ namespace WebRtc
 				if (viERunning)
 				{
 					viERunning = false;
-					vieAndroidAPI.StopRender(channel);
-					vieAndroidAPI.StopReceive(channel);
-					vieAndroidAPI.StopSend(channel);
-					vieAndroidAPI.RemoveRemoteRenderer(channel);
-					vieAndroidAPI.ViE_DeleteChannel(channel);
+					ViEAndroidJavaAPI.StopRender(channel);
+					ViEAndroidJavaAPI.StopReceive(channel);
+					ViEAndroidJavaAPI.StopSend(channel);
+					ViEAndroidJavaAPI.RemoveRemoteRenderer(channel);
+					ViEAndroidJavaAPI.ViE_DeleteChannel(channel);
 					channel = -1;
-					vieAndroidAPI.StopCamera(cameraId);
-					vieAndroidAPI.Terminate();
-					mLlRemoteSurface.removeView(remoteSurfaceView);
-					mLlLocalSurface.removeView(svLocal);
+					ViEAndroidJavaAPI.StopCamera(cameraId);
+					ViEAndroidJavaAPI.Terminate();
+					mLlRemoteSurface.RemoveView(remoteSurfaceView);
+					mLlLocalSurface.RemoveView(svLocal);
 					remoteSurfaceView = null;
 					svLocal = null;
 				}
@@ -486,21 +493,21 @@ namespace WebRtc
 				mCodecString = objects;
 			}
 
-			public override View getDropDownView(int position, View convertView, ViewGroup parent)
+			public override View GetDropDownView(int position, View convertView, ViewGroup parent)
 			{
-				return getCustomView(position, convertView, parent);
+				return GetCustomView(position, convertView, parent);
 			}
 
-			public override View getView(int position, View convertView, ViewGroup parent)
+			public override View GetView(int position, View convertView, ViewGroup parent)
 			{
-				return getCustomView(position, convertView, parent);
+				return GetCustomView(position, convertView, parent);
 			}
 
-			public virtual View getCustomView(int position, View convertView, ViewGroup parent)
+			public virtual View GetCustomView(int position, View convertView, ViewGroup parent)
 			{
 				LayoutInflater inflater = LayoutInflater;
-				View row = inflater.inflate(R.layout.row, parent, false);
-				TextView label = (TextView) row.findViewById(R.id.spinner_row);
+				View row = inflater.Inflate(Resource.Layout.row, parent, false);
+				TextView label = (TextView) row.FindViewById(Resource.Id.spinner_row);
 				label.Text = mCodecString[position];
 				return row;
 			}
@@ -510,8 +517,8 @@ namespace WebRtc
 		{
 			mTabHost.CurrentTab = 0;
 
-			mLlRemoteSurface = (LinearLayout) findViewById(R.id.llRemoteView);
-			mLlLocalSurface = (LinearLayout) findViewById(R.id.llLocalView);
+			mLlRemoteSurface = (LinearLayout) FindViewById(Resource.Id.llRemoteView);
+			mLlLocalSurface = (LinearLayout) FindViewById(Resource.Id.llLocalView);
 
 			if (null == vieAndroidAPI)
 			{
@@ -520,134 +527,134 @@ namespace WebRtc
 			if (0 > setupVoE() || 0 > vieAndroidAPI.GetVideoEngine() || 0 > vieAndroidAPI.Init(enableTrace))
 			{
 				// Show dialog
-				AlertDialog alertDialog = (new AlertDialog.Builder(this)).create();
-				alertDialog.Title = "WebRTC Error";
-				alertDialog.Message = "Can not init video engine.";
-				alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new OnClickListenerAnonymousInnerClassHelper(this));
-				alertDialog.show();
+				AlertDialog alertDialog = (new AlertDialog.Builder(this)).Create();
+				alertDialog.SetTitle("WebRTC Error");
+				alertDialog.SetMessage("Can not init video engine.");
+				alertDialog.SetButton(DialogInterface.ButtonPositive, "OK", new OnClickListenerAnonymousInnerClassHelper(this));
+				alertDialog.Show();
 			}
 
-			btSwitchCamera = (Button) findViewById(R.id.btSwitchCamera);
+			btSwitchCamera = (Button) FindViewById(Resource.Id.btSwitchCamera);
 			if (cameraOrientations[0] != -1 && cameraOrientations[1] != -1)
 			{
-				btSwitchCamera.OnClickListener = this;
+				btSwitchCamera.SetOnClickListener(this);
 			}
 			else
 			{
 				btSwitchCamera.Enabled = false;
 			}
-			btStartStopCall = (Button) findViewById(R.id.btStartStopCall);
-			btStartStopCall.OnClickListener = this;
-			findViewById(R.id.btExit).OnClickListener = this;
+			btStartStopCall = (Button) FindViewById(Resource.Id.btStartStopCall);
+			btStartStopCall.SetOnClickListener(this);
+			FindViewById(Resource.Id.btExit).SetOnClickListener(this);
 
 			// cleaning
 			remoteSurfaceView = null;
 			svLocal = null;
 
 			// Video codec
-			mVideoCodecsStrings = vieAndroidAPI.GetCodecs();
-			spCodecType = (Spinner) findViewById(R.id.spCodecType);
+			mVideoCodecsStrings = ViEAndroidJavaAPI.GetCodecs();
+			spCodecType = (Spinner) FindViewById(Resource.Id.spCodecType);
 			spCodecType.OnItemSelectedListener = this;
-			spCodecType.Adapter = new SpinnerAdapter(this, this, R.layout.row, mVideoCodecsStrings);
-			spCodecType.Selection = 0;
+			spCodecType.Adapter = new SpinnerAdapter(this, this, Resource.Layout.row, mVideoCodecsStrings);
+			spCodecType.SetSelection(0);
 
 			// Video Codec size
-			spCodecSize = (Spinner) findViewById(R.id.spCodecSize);
+			spCodecSize = (Spinner) FindViewById(Resource.Id.spCodecSize);
 			spCodecSize.OnItemSelectedListener = this;
-			spCodecSize.Adapter = new SpinnerAdapter(this, this, R.layout.row, mVideoCodecsSizeStrings);
-			spCodecSize.Selection = mVideoCodecsSizeStrings.Length - 1;
+			spCodecSize.Adapter = new SpinnerAdapter(this, this, Resource.Layout.row, mVideoCodecsSizeStrings);
+			spCodecSize.SetSelection(mVideoCodecsSizeStrings.Length - 1);
 
 			// Voice codec
-			mVoiceCodecsStrings = vieAndroidAPI.VoE_GetCodecs();
-			spVoiceCodecType = (Spinner) findViewById(R.id.spVoiceCodecType);
+			mVoiceCodecsStrings = ViEAndroidJavaAPI.VoE_GetCodecs();
+			spVoiceCodecType = (Spinner) FindViewById(Resource.Id.spVoiceCodecType);
 			spVoiceCodecType.OnItemSelectedListener = this;
-			spVoiceCodecType.Adapter = new SpinnerAdapter(this, this, R.layout.row, mVoiceCodecsStrings);
-			spVoiceCodecType.Selection = 0;
+			spVoiceCodecType.Adapter = new SpinnerAdapter(this, this, Resource.Layout.row, mVoiceCodecsStrings);
+			spVoiceCodecType.SetSelection(0);
 			// Find ISAC and use it
 			for (int i = 0; i < mVoiceCodecsStrings.Length; ++i)
 			{
 				if (mVoiceCodecsStrings[i].Contains("ISAC"))
 				{
-					spVoiceCodecType.Selection = i;
+					spVoiceCodecType.SetSelection(i);
 					break;
 				}
 			}
 
-			RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radio_group1);
-			radioGroup.clearCheck();
+			RadioGroup radioGroup = (RadioGroup) FindViewById(Resource.Id.radio_group1);
+			radioGroup.ClearCheck();
 			if (renderType == RenderType.OPENGL)
 			{
-				radioGroup.check(R.id.radio_opengl);
+				radioGroup.Check(Resource.Id.radio_opengl);
 			}
 			else if (renderType == RenderType.SURFACE)
 			{
-				radioGroup.check(R.id.radio_surface);
+				radioGroup.Check(Resource.Id.radio_surface);
 			}
 			else if (renderType == RenderType.MEDIACODEC)
 			{
-				radioGroup.check(R.id.radio_mediacodec);
+				radioGroup.Check(Resource.Id.radio_mediacodec);
 			}
 
-			etRemoteIp = (EditText) findViewById(R.id.etRemoteIp);
+			etRemoteIp = (EditText) FindViewById(Resource.Id.etRemoteIp);
 			etRemoteIp.Text = remoteIp;
 
-			cbLoopback = (CheckBox) findViewById(R.id.cbLoopback);
+			cbLoopback = (CheckBox) FindViewById(Resource.Id.cbLoopback);
 			cbLoopback.Checked = loopbackMode;
 
-			cbStats = (CheckBox) findViewById(R.id.cbStats);
+			cbStats = (CheckBox) FindViewById(Resource.Id.cbStats);
 			cbStats.Checked = isStatsOn;
 
-			cbVoice = (CheckBox) findViewById(R.id.cbVoice);
+			cbVoice = (CheckBox) FindViewById(Resource.Id.cbVoice);
 			cbVoice.Checked = enableVoice;
 
-			cbVideoSend = (CheckBox) findViewById(R.id.cbVideoSend);
+			cbVideoSend = (CheckBox) FindViewById(Resource.Id.cbVideoSend);
 			cbVideoSend.Checked = enableVideoSend;
-			cbVideoReceive = (CheckBox) findViewById(R.id.cbVideoReceive);
+			cbVideoReceive = (CheckBox) FindViewById(Resource.Id.cbVideoReceive);
 			cbVideoReceive.Checked = enableVideoReceive;
 
-			etVTxPort = (EditText) findViewById(R.id.etVTxPort);
+			etVTxPort = (EditText) FindViewById(Resource.Id.etVTxPort);
 			etVTxPort.Text = Convert.ToString(destinationPortVideo);
 
-			etVRxPort = (EditText) findViewById(R.id.etVRxPort);
+			etVRxPort = (EditText) FindViewById(Resource.Id.etVRxPort);
 			etVRxPort.Text = Convert.ToString(receivePortVideo);
 
-			etATxPort = (EditText) findViewById(R.id.etATxPort);
+			etATxPort = (EditText) FindViewById(Resource.Id.etATxPort);
 			etATxPort.Text = Convert.ToString(destinationPortVoice);
 
-			etARxPort = (EditText) findViewById(R.id.etARxPort);
+			etARxPort = (EditText) FindViewById(Resource.Id.etARxPort);
 			etARxPort.Text = Convert.ToString(receivePortVoice);
 
-			cbEnableNack = (CheckBox) findViewById(R.id.cbNack);
+			cbEnableNack = (CheckBox) FindViewById(Resource.Id.cbNack);
 			cbEnableNack.Checked = enableNack;
 
-			cbEnableSpeaker = (CheckBox) findViewById(R.id.cbSpeaker);
-			cbEnableAGC = (CheckBox) findViewById(R.id.cbAutoGainControl);
+			cbEnableSpeaker = (CheckBox) FindViewById(Resource.Id.cbSpeaker);
+			cbEnableAGC = (CheckBox) FindViewById(Resource.Id.cbAutoGainControl);
 			cbEnableAGC.Checked = enableAGC;
-			cbEnableAECM = (CheckBox) findViewById(R.id.cbAECM);
+			cbEnableAECM = (CheckBox) FindViewById(Resource.Id.cbAECM);
 			cbEnableAECM.Checked = enableAECM;
-			cbEnableNS = (CheckBox) findViewById(R.id.cbNoiseSuppression);
+			cbEnableNS = (CheckBox) FindViewById(Resource.Id.cbNoiseSuppression);
 			cbEnableNS.Checked = enableNS;
 
-			cbEnableDebugAPM = (CheckBox) findViewById(R.id.cbDebugRecording);
+			cbEnableDebugAPM = (CheckBox) FindViewById(Resource.Id.cbDebugRecording);
 			cbEnableDebugAPM.Checked = false; // Disable APM debugging by default
 
-			cbEnableVideoRTPDump = (CheckBox) findViewById(R.id.cbVideoRTPDump);
+			cbEnableVideoRTPDump = (CheckBox) FindViewById(Resource.Id.cbVideoRTPDump);
 			cbEnableVideoRTPDump.Checked = false; // Disable Video RTP Dump
 
-			cbEnableVoiceRTPDump = (CheckBox) findViewById(R.id.cbVoiceRTPDump);
+			cbEnableVoiceRTPDump = (CheckBox) FindViewById(Resource.Id.cbVoiceRTPDump);
 			cbEnableVoiceRTPDump.Checked = false; // Disable Voice RTP Dump
 
-			etRemoteIp.OnClickListener = this;
-			cbLoopback.OnClickListener = this;
-			cbStats.OnClickListener = this;
-			cbEnableNack.OnClickListener = this;
-			cbEnableSpeaker.OnClickListener = this;
-			cbEnableAECM.OnClickListener = this;
-			cbEnableAGC.OnClickListener = this;
-			cbEnableNS.OnClickListener = this;
-			cbEnableDebugAPM.OnClickListener = this;
-			cbEnableVideoRTPDump.OnClickListener = this;
-			cbEnableVoiceRTPDump.OnClickListener = this;
+			etRemoteIp.SetOnClickListener(this);
+			cbLoopback.SetOnClickListener(this);
+			cbStats.SetOnClickListener(this);
+			cbEnableNack.SetOnClickListener(this);
+			cbEnableSpeaker.SetOnClickListener(this);
+			cbEnableAECM.SetOnClickListener(this);
+			cbEnableAGC.SetOnClickListener(this);
+			cbEnableNS.SetOnClickListener(this);
+			cbEnableDebugAPM.SetOnClickListener(this);
+			cbEnableVideoRTPDump.SetOnClickListener(this);
+			cbEnableVoiceRTPDump.SetOnClickListener(this);
 
 			if (loopbackMode)
 			{
@@ -664,7 +671,7 @@ namespace WebRtc
 			readSettings();
 		}
 
-		private class OnClickListenerAnonymousInnerClassHelper : DialogInterface.OnClickListener
+		private class OnClickListenerAnonymousInnerClassHelper : IDialogInterfaceOnClickListener
 		{
 			private readonly WebRTCDemo outerInstance;
 
@@ -673,10 +680,17 @@ namespace WebRtc
 				this.outerInstance = outerInstance;
 			}
 
-			public virtual void onClick(DialogInterface dialog, int which)
+			public void OnClick(IDialogInterface dialog, int which)
 			{
 				return;
 			}
+
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
+
+			public IntPtr Handle { get; private set; }
 		}
 
 		private string RemoteIPString
@@ -704,51 +718,51 @@ namespace WebRtc
 					svLocal = ViERenderer.CreateLocalRenderer(this);
 				}
 
-				channel = vieAndroidAPI.CreateChannel(voiceChannel);
-				ret = vieAndroidAPI.SetLocalReceiver(channel, receivePortVideo);
-				ret = vieAndroidAPI.SetSendDestination(channel, destinationPortVideo, RemoteIPString);
+				channel = ViEAndroidJavaAPI.CreateChannel(voiceChannel);
+				ret = ViEAndroidJavaAPI.SetLocalReceiver(channel, receivePortVideo);
+				ret = ViEAndroidJavaAPI.SetSendDestination(channel, destinationPortVideo, RemoteIPString);
 
 				if (enableVideoReceive)
 				{
 					if (renderType == RenderType.OPENGL)
 					{
-						Log.v(TAG, "Create OpenGL Render");
+						Log.Verbose(TAG, "Create OpenGL Render");
 						remoteSurfaceView = ViERenderer.CreateRenderer(this, true);
 					}
 					else if (renderType == RenderType.SURFACE)
 					{
-						Log.v(TAG, "Create SurfaceView Render");
+						Log.Verbose(TAG, "Create SurfaceView Render");
 						remoteSurfaceView = ViERenderer.CreateRenderer(this, false);
 					}
 					else if (renderType == RenderType.MEDIACODEC)
 					{
-						Log.v(TAG, "Create MediaCodec Decoder/Renderer");
+						Log.Verbose(TAG, "Create MediaCodec Decoder/Renderer");
 						remoteSurfaceView = new SurfaceView(this);
 					}
 
 					if (mLlRemoteSurface != null)
 					{
-						mLlRemoteSurface.addView(remoteSurfaceView);
+						mLlRemoteSurface.AddView(remoteSurfaceView);
 					}
 
 					if (renderType == RenderType.MEDIACODEC)
 					{
-						ret = vieAndroidAPI.SetExternalMediaCodecDecoderRenderer(channel, remoteSurfaceView);
+						ret = ViEAndroidJavaAPI.SetExternalMediaCodecDecoderRenderer(channel, remoteSurfaceView);
 					}
 					else
 					{
-						ret = vieAndroidAPI.AddRemoteRenderer(channel, remoteSurfaceView);
+						ret = ViEAndroidJavaAPI.AddRemoteRenderer(channel, remoteSurfaceView);
 					}
 
-					ret = vieAndroidAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE);
-					ret = vieAndroidAPI.StartRender(channel);
-					ret = vieAndroidAPI.StartReceive(channel);
+					ret = ViEAndroidJavaAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE);
+					ret = ViEAndroidJavaAPI.StartRender(channel);
+					ret = ViEAndroidJavaAPI.StartReceive(channel);
 				}
 
 				if (enableVideoSend)
 				{
-					ret = vieAndroidAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE);
-					int camId = vieAndroidAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
+					ret = ViEAndroidJavaAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE);
+					int camId = ViEAndroidJavaAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
 
 					if (camId >= 0)
 					{
@@ -759,20 +773,20 @@ namespace WebRtc
 					{
 						ret = camId;
 					}
-					ret = vieAndroidAPI.StartSend(channel);
+					ret = ViEAndroidJavaAPI.StartSend(channel);
 				}
 
 				// TODO(leozwang): Add more options besides PLI, currently use pli
 				// as the default. Also check return value.
-				ret = vieAndroidAPI.EnablePLI(channel, true);
-				ret = vieAndroidAPI.EnableNACK(channel, enableNack);
-				ret = vieAndroidAPI.SetCallback(channel, this);
+				ret = ViEAndroidJavaAPI.EnablePLI(channel, true);
+				ret = ViEAndroidJavaAPI.EnableNACK(channel, enableNack);
+				ret = ViEAndroidJavaAPI.SetCallback(channel, this);
 
 				if (enableVideoSend)
 				{
 					if (mLlLocalSurface != null)
 					{
-						mLlLocalSurface.addView(svLocal);
+						mLlLocalSurface.AddView(svLocal);
 					}
 				}
 
@@ -793,31 +807,31 @@ namespace WebRtc
 		private void stopVoiceEngine()
 		{
 			// Stop send
-			if (0 != vieAndroidAPI.VoE_StopSend(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StopSend(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop send failed");
 			}
 
 			// Stop listen
-			if (0 != vieAndroidAPI.VoE_StopListen(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StopListen(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop listen failed");
 			}
 
 			// Stop playout
-			if (0 != vieAndroidAPI.VoE_StopPlayout(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StopPlayout(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop playout failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_DeleteChannel(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_DeleteChannel(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE delete channel failed");
 			}
 			voiceChannel = -1;
 
 			// Terminate
-			if (0 != vieAndroidAPI.VoE_Terminate())
+			if (0 != ViEAndroidJavaAPI.VoE_Terminate())
 			{
 				Log.Debug(TAG, "VoE terminate failed");
 			}
@@ -827,24 +841,24 @@ namespace WebRtc
 		{
 			// Create VoiceEngine
 			// Error logging is done in native API wrapper
-			vieAndroidAPI.VoE_Create(ApplicationContext);
+			ViEAndroidJavaAPI.VoE_Create(ApplicationContext);
 
 			// Initialize
-			if (0 != vieAndroidAPI.VoE_Init(enableTrace))
+			if (0 != ViEAndroidJavaAPI.VoE_Init(enableTrace))
 			{
 				Log.Debug(TAG, "VoE init failed");
 				return -1;
 			}
 
 			// Suggest to use the voice call audio stream for hardware volume controls
-			VolumeControlStream = AudioManager.STREAM_VOICE_CALL;
+			VolumeControlStream = Stream.VoiceCall;
 			return 0;
 		}
 
 		private int startVoiceEngine()
 		{
 			// Create channel
-			voiceChannel = vieAndroidAPI.VoE_CreateChannel();
+			voiceChannel = ViEAndroidJavaAPI.VoE_CreateChannel();
 			if (0 > voiceChannel)
 			{
 				Log.Debug(TAG, "VoE create channel failed");
@@ -852,57 +866,57 @@ namespace WebRtc
 			}
 
 			// Set local receiver
-			if (0 != vieAndroidAPI.VoE_SetLocalReceiver(voiceChannel, receivePortVoice))
+			if (0 != ViEAndroidJavaAPI.VoE_SetLocalReceiver(voiceChannel, receivePortVoice))
 			{
 				Log.Debug(TAG, "VoE set local receiver failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_StartListen(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StartListen(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start listen failed");
 			}
 
 			// Route audio
-			routeAudio(cbEnableSpeaker.Checked);
+			RouteAudio(cbEnableSpeaker.Checked);
 
 			// set volume to default value
-			if (0 != vieAndroidAPI.VoE_SetSpeakerVolume(volumeLevel))
+			if (0 != ViEAndroidJavaAPI.VoE_SetSpeakerVolume(volumeLevel))
 			{
 				Log.Debug(TAG, "VoE set speaker volume failed");
 			}
 
 			// Start playout
-			if (0 != vieAndroidAPI.VoE_StartPlayout(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StartPlayout(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start playout failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_SetSendDestination(voiceChannel, destinationPortVoice, RemoteIPString))
+			if (0 != ViEAndroidJavaAPI.VoE_SetSendDestination(voiceChannel, destinationPortVoice, RemoteIPString))
 			{
 				Log.Debug(TAG, "VoE set send  destination failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
+			if (0 != ViEAndroidJavaAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
 			{
 				Log.Debug(TAG, "VoE set send codec failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_SetECStatus(enableAECM))
+			if (0 != ViEAndroidJavaAPI.VoE_SetECStatus(enableAECM))
 			{
 				Log.Debug(TAG, "VoE set EC Status failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_SetAGCStatus(enableAGC))
+			if (0 != ViEAndroidJavaAPI.VoE_SetAGCStatus(enableAGC))
 			{
 				Log.Debug(TAG, "VoE set AGC Status failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_SetNSStatus(enableNS))
+			if (0 != ViEAndroidJavaAPI.VoE_SetNSStatus(enableNS))
 			{
 				Log.Debug(TAG, "VoE set NS Status failed");
 			}
 
-			if (0 != vieAndroidAPI.VoE_StartSend(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.VoE_StartSend(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start send failed");
 			}
@@ -911,68 +925,68 @@ namespace WebRtc
 			return 0;
 		}
 
-		private void routeAudio(bool enableSpeaker)
+		private void RouteAudio(bool enableSpeaker)
 		{
-			if (0 != vieAndroidAPI.VoE_SetLoudspeakerStatus(enableSpeaker))
+			if (0 != ViEAndroidJavaAPI.VoE_SetLoudspeakerStatus(enableSpeaker))
 			{
 				Log.Debug(TAG, "VoE set louspeaker status failed");
 			}
 		}
 
-		private void startOrStop()
+		private void StartOrStop()
 		{
 			readSettings();
 			if (viERunning || voERunning)
 			{
-				stopAll();
+				StopAll();
 				startMain();
-				btStartStopCall.Text = R.@string.startCall;
+				btStartStopCall.Text = Resources.GetString(Resource.String.startCall);
 			}
 			else if (enableVoice || enableVideo)
 			{
 				++numCalls;
 				startCall();
-				btStartStopCall.Text = R.@string.stopCall;
+				btStartStopCall.Text = Resources.GetString(Resource.String.stopCall);
 			}
 			if (AUTO_CALL_RESTART_DELAY_MS > 0)
 			{
-				handler.postDelayed(startOrStopCallback, AUTO_CALL_RESTART_DELAY_MS);
+				handler.PostDelayed(startOrStopCallback, AUTO_CALL_RESTART_DELAY_MS);
 			}
 		}
 
-		public virtual void onClick(View arg0)
+		public virtual void OnClick(View arg0)
 		{
 			switch (arg0.Id)
 			{
-				case R.id.btSwitchCamera:
+				case Resource.Id.btSwitchCamera:
 					if (usingFrontCamera)
 					{
-						btSwitchCamera.Text = R.@string.frontCamera;
+						btSwitchCamera.Text = Resources.GetString(Resource.String.frontCamera);
 					}
 					else
 					{
-						btSwitchCamera.Text = R.@string.backCamera;
+						btSwitchCamera.Text = Resources.GetString(Resource.String.backCamera);
 					}
 					usingFrontCamera = !usingFrontCamera;
 
 					if (viERunning)
 					{
-						vieAndroidAPI.StopCamera(cameraId);
-						mLlLocalSurface.removeView(svLocal);
+						ViEAndroidJavaAPI.StopCamera(cameraId);
+						mLlLocalSurface.RemoveView(svLocal);
 
-						vieAndroidAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
-						mLlLocalSurface.addView(svLocal);
+						ViEAndroidJavaAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
+						mLlLocalSurface.AddView(svLocal);
 						compensateCameraRotation();
 					}
 					break;
-				case R.id.btStartStopCall:
-				  startOrStop();
+				case Resource.Id.btStartStopCall:
+				  StartOrStop();
 				  break;
-				case R.id.btExit:
-					stopAll();
-					finish();
+				case Resource.Id.btExit:
+					StopAll();
+					Finish();
 					break;
-				case R.id.cbLoopback:
+				case Resource.Id.cbLoopback:
 					loopbackMode = cbLoopback.Checked;
 					if (loopbackMode)
 					{
@@ -985,10 +999,10 @@ namespace WebRtc
 						etRemoteIp.Text = remoteIp;
 					}
 					break;
-				case R.id.etRemoteIp:
+				case Resource.Id.etRemoteIp:
 					remoteIp = etRemoteIp.Text.ToString();
 					break;
-				case R.id.cbStats:
+				case Resource.Id.cbStats:
 					isStatsOn = cbStats.Checked;
 					if (isStatsOn)
 					{
@@ -999,86 +1013,86 @@ namespace WebRtc
 						removeStatusView();
 					}
 					break;
-				case R.id.radio_surface:
+				case Resource.Id.radio_surface:
 					renderType = RenderType.SURFACE;
 					break;
-				case R.id.radio_opengl:
+				case Resource.Id.radio_opengl:
 					renderType = RenderType.OPENGL;
 					break;
-				case R.id.radio_mediacodec:
+				case Resource.Id.radio_mediacodec:
 					renderType = RenderType.MEDIACODEC;
 					break;
-				case R.id.cbNack:
+				case Resource.Id.cbNack:
 					enableNack = cbEnableNack.Checked;
 					if (viERunning)
 					{
-						vieAndroidAPI.EnableNACK(channel, enableNack);
+						ViEAndroidJavaAPI.EnableNACK(channel, enableNack);
 					}
 					break;
-				case R.id.cbSpeaker:
+				case Resource.Id.cbSpeaker:
 					if (voERunning)
 					{
-						routeAudio(cbEnableSpeaker.Checked);
+						RouteAudio(cbEnableSpeaker.Checked);
 					}
 					break;
-				case R.id.cbDebugRecording:
+				case Resource.Id.cbDebugRecording:
 					if (voERunning && webrtcDebugDir != null)
 					{
 						if (cbEnableDebugAPM.Checked)
 						{
-							vieAndroidAPI.VoE_StartDebugRecording(webrtcDebugDir + string.Format("/apm_{0:D}.dat", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.VoE_StartDebugRecording(webrtcDebugDir + string.Format("/apm_{0:D}.dat", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							vieAndroidAPI.VoE_StopDebugRecording();
+							ViEAndroidJavaAPI.VoE_StopDebugRecording();
 						}
 					}
 					break;
-				case R.id.cbVoiceRTPDump:
+				case Resource.Id.cbVoiceRTPDump:
 					if (voERunning && webrtcDebugDir != null)
 					{
 						if (cbEnableVoiceRTPDump.Checked)
 						{
-							vieAndroidAPI.VoE_StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/voe_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.VoE_StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/voe_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							vieAndroidAPI.VoE_StopIncomingRTPDump(channel);
+							ViEAndroidJavaAPI.VoE_StopIncomingRTPDump(channel);
 						}
 					}
 					break;
-				case R.id.cbVideoRTPDump:
+				case Resource.Id.cbVideoRTPDump:
 					if (viERunning && webrtcDebugDir != null)
 					{
 						if (cbEnableVideoRTPDump.Checked)
 						{
-							vieAndroidAPI.StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/vie_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/vie_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							vieAndroidAPI.StopIncomingRTPDump(channel);
+							ViEAndroidJavaAPI.StopIncomingRTPDump(channel);
 						}
 					}
 					break;
-				case R.id.cbAutoGainControl:
+				case Resource.Id.cbAutoGainControl:
 					enableAGC = cbEnableAGC.Checked;
 					if (voERunning)
 					{
-						vieAndroidAPI.VoE_SetAGCStatus(enableAGC);
+						ViEAndroidJavaAPI.VoE_SetAGCStatus(enableAGC);
 					}
 					break;
-				case R.id.cbNoiseSuppression:
+				case Resource.Id.cbNoiseSuppression:
 					enableNS = cbEnableNS.Checked;
 					if (voERunning)
 					{
-						vieAndroidAPI.VoE_SetNSStatus(enableNS);
+						ViEAndroidJavaAPI.VoE_SetNSStatus(enableNS);
 					}
 					break;
-				case R.id.cbAECM:
+				case Resource.Id.cbAECM:
 					enableAECM = cbEnableAECM.Checked;
 					if (voERunning)
 					{
-						vieAndroidAPI.VoE_SetECStatus(enableAECM);
+						ViEAndroidJavaAPI.VoE_SetECStatus(enableAECM);
 					}
 					break;
 			}
@@ -1090,7 +1104,7 @@ namespace WebRtc
 			voiceCodecType = spVoiceCodecType.SelectedItemPosition;
 
 			string sCodecSize = spCodecSize.SelectedItem.ToString();
-			string[] aCodecSize = sCodecSize.Split("x", true);
+			string[] aCodecSize = sCodecSize.Split(new[]{'x'}, 1);
 			codecSizeWidth = Convert.ToInt32(aCodecSize[0]);
 			codecSizeHeight = Convert.ToInt32(aCodecSize[1]);
 
@@ -1111,7 +1125,7 @@ namespace WebRtc
 			enableNS = cbEnableNS.Checked;
 		}
 
-		public virtual void onItemSelected<T1>(AdapterView<T1> adapterView, View view, int position, long id)
+		public virtual void OnItemSelected(AdapterView adapterView, View view, int position, long id)
 		{
 			if ((adapterView == spCodecType || adapterView == spCodecSize) && viERunning)
 			{
@@ -1119,14 +1133,14 @@ namespace WebRtc
 				// change the codectype
 				if (enableVideoReceive)
 				{
-					if (0 != vieAndroidAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE))
+					if (0 != ViEAndroidJavaAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE))
 					{
 						Log.Debug(TAG, "ViE set receive codec failed");
 					}
 				}
 				if (enableVideoSend)
 				{
-					if (0 != vieAndroidAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE))
+					if (0 != ViEAndroidJavaAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE))
 					{
 						Log.Debug(TAG, "ViE set send codec failed");
 					}
@@ -1136,14 +1150,14 @@ namespace WebRtc
 			{
 				// change voice engine codec
 				readSettings();
-				if (0 != vieAndroidAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
+				if (0 != ViEAndroidJavaAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
 				{
 					Log.Debug(TAG, "VoE set send codec failed");
 				}
 			}
 		}
 
-		public virtual void onNothingSelected<T1>(AdapterView<T1> arg0)
+		public virtual void OnNothingSelected(AdapterView arg0)
 		{
 			Log.Debug(TAG, "No setting selected");
 		}
@@ -1172,16 +1186,16 @@ namespace WebRtc
 				return;
 			}
 			statsView = new StatsView(this, this);
-			WindowManager.LayoutParams @params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, PixelFormat.TRANSLUCENT);
-			@params.gravity = Gravity.RIGHT | Gravity.TOP;
-			@params.Title = "Load Average";
-			mTabHost.addView(statsView, @params);
-			statsView.BackgroundColor = 0;
+			WindowManagerLayoutParams layoutParams = new WindowManagerLayoutParams(WindowManagerLayoutParams.MatchParent, WindowManagerLayoutParams.WrapContent, WindowManagerTypes.SystemOverlay, WindowManagerFlags.NotFocusable | WindowManagerFlags.NotTouchable, Format.Translucent);
+			layoutParams.Gravity = GravityFlags.Right| GravityFlags.Top;
+			layoutParams.Title = "Load Average";
+			mTabHost.AddView(statsView, layoutParams);
+			statsView.SetBackgroundColor(Color.Black);
 		}
 
 		private void removeStatusView()
 		{
-			mTabHost.removeView(statsView);
+			mTabHost.RemoveView(statsView);
 			statsView = null;
 		}
 

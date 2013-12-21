@@ -86,7 +86,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				}
 				catch (IOException e)
 				{
-				  throw new Exception(e);
+				  throw new Exception("Error",e);
 				}
 			  }
         
@@ -170,7 +170,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 
 //JAVA TO C# CONVERTER TODO TASK: Replace 'unknown' with the appropriate dll name:
 	  [DllImport("unknown")]
-	  private extern void ProvideCameraFrame(byte[] data, int length, long captureObject);
+	  private static extern void ProvideCameraFrame(byte[] data, int length, long captureObject);
 
 	  public virtual void OnPreviewFrame(byte[] data, Camera camera)
 	  {
@@ -236,7 +236,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			}
 			catch (IOException e)
 			{
-			  throw new Exception(e);
+			  throw new Exception("Error", e);
 			}
 		  }
 	  }
@@ -255,10 +255,17 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			}
 			catch (IOException e)
 			{
-			  throw new Exception(e);
+			  throw new Exception("Error",e);
 			}
 		  }
 	  }
+
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
+
+		public IntPtr Handle { get; private set; }
 	}
 
 }

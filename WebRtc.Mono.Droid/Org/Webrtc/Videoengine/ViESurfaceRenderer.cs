@@ -157,6 +157,12 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			}
 		}
 
+		public void Dispose()
+		{
+			throw new NotImplementedException();
+		}
+
+		public IntPtr Handle { get; private set; }
 	}
 
 }

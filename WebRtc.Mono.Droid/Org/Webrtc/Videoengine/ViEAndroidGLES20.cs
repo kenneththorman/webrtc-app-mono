@@ -7,6 +7,8 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+
+using System;
 using System.Runtime.InteropServices;
 using Android.App;
 using Android.Content;
@@ -85,7 +87,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 		private class ContextFactory : GLSurfaceView.IEGLContextFactory
 		{
 			internal static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-			public virtual EGLContext CreateContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig)
+			public virtual EGLContext CreateContext(IEGL10 egl, EGLDisplay display, EGLConfig eglConfig)
 			{
 				Log.Warn(TAG, "creating OpenGL ES 2.0 context");
 				checkEglError("Before eglCreateContext", egl);
@@ -95,10 +97,17 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				return context;
 			}
 
-			public virtual void DestroyContext(EGL10 egl, EGLDisplay display, EGLContext context)
+			public virtual void DestroyContext(IEGL10 egl, EGLDisplay display, EGLContext context)
 			{
 				egl.eglDestroyContext(display, context);
 			}
+
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
+
+			public IntPtr Handle { get; private set; }
 		}
 
 		private static void checkEglError(string prompt, EGL10 egl)
@@ -129,7 +138,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			internal static int EGL_OPENGL_ES2_BIT = 4;
 			internal static int[] s_configAttribs2 = new int[] {EGL10.EglRedSize, 4, EGL10.EglGreenSize, 4, EGL10.EglBlueSize, 4, EGL10.EglRenderableType, EGL_OPENGL_ES2_BIT, EGL10.EglNone};
 
-			public virtual EGLConfig ChooseConfig(EGL10 egl, EGLDisplay display)
+			public virtual EGLConfig ChooseConfig(IEGL10 egl, EGLDisplay display)
 			{
 
 				// Get the number of minimally matching EGL configurations
@@ -232,6 +241,12 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			protected internal int mDepthSize;
 			protected internal int mStencilSize;
 			internal int[] mValue = new int[1];
+			public void Dispose()
+			{
+				throw new NotImplementedException();
+			}
+
+			public IntPtr Handle { get; private set; }
 		}
 
 		// IsSupported
@@ -248,7 +263,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			return false;
 		}
 
-		public virtual void OnDrawFrame(GL10 gl)
+		public virtual void OnDrawFrame(IGL10 gl)
 		{
 			nativeFunctionLock.Lock();
 			if (!nativeFunctionsRegisted || !surfaceCreated)
@@ -269,7 +284,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			nativeFunctionLock.Unlock();
 		}
 
-		public virtual void OnSurfaceChanged(GL10 gl, int width, int height)
+		public virtual void OnSurfaceChanged(IGL10 gl, int width, int height)
 		{
 			surfaceCreated = true;
 			viewWidth = width;
@@ -286,7 +301,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			nativeFunctionLock.Unlock();
 		}
 
-		public virtual void OnSurfaceCreated(GL10 gl, EGLConfig config)
+		public virtual void OnSurfaceCreated(IGL10 gl, EGLConfig config)
 		{
 		}
 
@@ -318,10 +333,10 @@ namespace WebRtc.Org.Webrtc.Videoengine
 
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		private extern int CreateOpenGLNative(long nativeObject, int width, int height);
+		private static extern int CreateOpenGLNative(long nativeObject, int width, int height);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		private extern void DrawNative(long nativeObject);
+		private static extern void DrawNative(long nativeObject);
 
 	}
 

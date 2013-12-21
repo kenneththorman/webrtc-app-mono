@@ -77,14 +77,14 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				// preserve that through the Java->C++->Java round-trip.
 				int[] mfps = supportedFpsRanges[supportedFpsRanges.Count - 1];
 				cameraDict.Put("name", uniqueName);
-				cameraDict.Put("front_facing", isFrontFacing(info)).Put("orientation", info.Orientation).Put("sizes", sizes).Put("min_mfps", mfps[Parameters.PREVIEW_FPS_MIN_INDEX]).Put("max_mfps", mfps[Parameters.PREVIEW_FPS_MAX_INDEX]);
+				cameraDict.Put("front_facing", isFrontFacing(info)).Put("orientation", info.Orientation).Put("sizes", sizes).Put("min_mfps", mfps[(int)Camera.Parameters.PreviewFpsMinIndex]).Put("max_mfps", mfps[(int)Camera.Parameters.PreviewFpsMaxIndex]);
 			  }
 			  string ret = devices.ToString(2);
 			  return ret;
 			}
 			catch (JSONException e)
 			{
-			  throw new Exception(e);
+			  throw new Exception("Error", e);
 			}
 		  }
 	  }

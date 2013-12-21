@@ -38,206 +38,206 @@ namespace WebRtc
 		// API Native
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		private extern bool NativeInit(Context context);
+		private static extern bool NativeInit(Context context);
 
 		// Video Engine API
 		// Initialization and Termination functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int GetVideoEngine();
+		public static extern int GetVideoEngine();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int Init(bool enableTrace);
+		public static extern int Init(bool enableTrace);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int Terminate();
+		public static extern int Terminate();
 
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StartSend(int channel);
+		public static extern int StartSend(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StopRender(int channel);
+		public static extern int StopRender(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StopSend(int channel);
+		public static extern int StopSend(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StartReceive(int channel);
+		public static extern int StartReceive(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StopReceive(int channel);
+		public static extern int StopReceive(int channel);
 		
 		// Channel functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int CreateChannel(int voiceChannel);
+		public static extern int CreateChannel(int voiceChannel);
 		
 		// Receiver & Destination functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetLocalReceiver(int channel, int port);
+		public static extern int SetLocalReceiver(int channel, int port);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetSendDestination(int channel, int port, string ipaddr);
+		public static extern int SetSendDestination(int channel, int port, string ipaddr);
 		
 		// Codec
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern String[] GetCodecs();
+		public static extern String[] GetCodecs();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetReceiveCodec(int channel, int codecNum, int intbitRate, int width, int height, int frameRate);
+		public static extern int SetReceiveCodec(int channel, int codecNum, int intbitRate, int width, int height, int frameRate);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetSendCodec(int channel, int codecNum, int intbitRate, int width, int height, int frameRate);
+		public static extern int SetSendCodec(int channel, int codecNum, int intbitRate, int width, int height, int frameRate);
 		
 		// Rendering
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int AddRemoteRenderer(int channel, object glSurface);
+		public static extern int AddRemoteRenderer(int channel, object glSurface);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int RemoveRemoteRenderer(int channel);
+		public static extern int RemoveRemoteRenderer(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StartRender(int channel);
+		public static extern int StartRender(int channel);
 
 		// Capture
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StartCamera(int channel, int cameraNum);
+		public static extern int StartCamera(int channel, int cameraNum);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StopCamera(int cameraId);
+		public static extern int StopCamera(int cameraId);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int GetCameraOrientation(int cameraNum);
+		public static extern int GetCameraOrientation(int cameraNum);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetRotation(int cameraId, int degrees);
+		public static extern int SetRotation(int cameraId, int degrees);
 
 		// External Codec
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetExternalMediaCodecDecoderRenderer(int channel, object glSurface);
+		public static extern int SetExternalMediaCodecDecoderRenderer(int channel, object glSurface);
 
 		// NACK
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int EnableNACK(int channel, bool enable);
+		public static extern int EnableNACK(int channel, bool enable);
 
 		// PLI
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int EnablePLI(int channel, bool enable);
+		public static extern int EnablePLI(int channel, bool enable);
 
 		// Enable stats callback
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int SetCallback(int channel, IViEAndroidCallback callback);
+		public static extern int SetCallback(int channel, IViEAndroidCallback callback);
 
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StartIncomingRTPDump(int channel, string file);
+		public static extern int StartIncomingRTPDump(int channel, string file);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int StopIncomingRTPDump(int channel);
+		public static extern int StopIncomingRTPDump(int channel);
 
 		// Voice Engine API
 		// Create and Delete functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern bool VoE_Create(Context context);
+		public static extern bool VoE_Create(Context context);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern bool VoE_Delete();
+		public static extern bool VoE_Delete();
 
 		// Initialization and Termination functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_Init(bool enableTrace);
+		public static extern int VoE_Init(bool enableTrace);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_Terminate();
+		public static extern int VoE_Terminate();
 
 		// Channel functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_CreateChannel();
+		public static extern int VoE_CreateChannel();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_DeleteChannel(int channel);
+		public static extern int VoE_DeleteChannel(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int ViE_DeleteChannel(int channel);
+		public static extern int ViE_DeleteChannel(int channel);
 
 		// Receiver & Destination functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetLocalReceiver(int channel, int port);
+		public static extern int VoE_SetLocalReceiver(int channel, int port);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetSendDestination(int channel, int port, string ipaddr);
+		public static extern int VoE_SetSendDestination(int channel, int port, string ipaddr);
 
 		// Media functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartListen(int channel);
+		public static extern int VoE_StartListen(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartPlayout(int channel);
+		public static extern int VoE_StartPlayout(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartSend(int channel);
+		public static extern int VoE_StartSend(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopListen(int channel);
+		public static extern int VoE_StopListen(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopPlayout(int channel);
+		public static extern int VoE_StopPlayout(int channel);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopSend(int channel);
+		public static extern int VoE_StopSend(int channel);
 
 		// Volume
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetSpeakerVolume(int volume);
+		public static extern int VoE_SetSpeakerVolume(int volume);
 
 		// Hardware
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetLoudspeakerStatus(bool enable);
+		public static extern int VoE_SetLoudspeakerStatus(bool enable);
 
 		// Playout file locally
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartPlayingFileLocally(int channel, string fileName, bool loop);
+		public static extern int VoE_StartPlayingFileLocally(int channel, string fileName, bool loop);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopPlayingFileLocally(int channel);
+		public static extern int VoE_StopPlayingFileLocally(int channel);
 
 		// Play file as microphone
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartPlayingFileAsMicrophone(int channel, string fileName, bool loop);
+		public static extern int VoE_StartPlayingFileAsMicrophone(int channel, string fileName, bool loop);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopPlayingFileAsMicrophone(int channel);
+		public static extern int VoE_StopPlayingFileAsMicrophone(int channel);
 
 		// Codec-setting functions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_NumOfCodecs();
+		public static extern int VoE_NumOfCodecs();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern String[] VoE_GetCodecs();
+		public static extern String[] VoE_GetCodecs();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetSendCodec(int channel, int index);
+		public static extern int VoE_SetSendCodec(int channel, int index);
 
 		//VoiceEngine funtions
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetECStatus(bool enable);
+		public static extern int VoE_SetECStatus(bool enable);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetAGCStatus(bool enable);
+		public static extern int VoE_SetAGCStatus(bool enable);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_SetNSStatus(bool enable);
+		public static extern int VoE_SetNSStatus(bool enable);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartDebugRecording(string file);
+		public static extern int VoE_StartDebugRecording(string file);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopDebugRecording();
+		public static extern int VoE_StopDebugRecording();
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StartIncomingRTPDump(int channel, string file);
+		public static extern int VoE_StartIncomingRTPDump(int channel, string file);
 
 		[DllImport("libwebrtc-video-demo-jni.so")]
-		public extern int VoE_StopIncomingRTPDump(int channel);
+		public static extern int VoE_StopIncomingRTPDump(int channel);
 	}
 
 }
