@@ -101,6 +101,37 @@
     <None Include="src\video_engine\test\android\src\org\webrtc\videoengineapp\WebRTCDemo.java" />
     <None Include="src\video_engine\test\android\src\org\webrtc\videoengine\ViEMediaCodecDecoder.java" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="IViEAndroidCallback.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ViEAndroidJavaAPI.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WebRTCDemo.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.java" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Videoengine\ViERenderer.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.java" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.
