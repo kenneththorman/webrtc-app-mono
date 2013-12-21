@@ -54,6 +54,9 @@
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
+    <None Include="src\video_engine\test\android\gen\R.java.d" />
+    <None Include="src\video_engine\test\android\libs\armeabi-v7a\libwebrtc-video-demo-jni.so" />
+    <None Include="src\video_engine\test\android\project.properties" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Layout\Main.axml" />
@@ -66,6 +69,37 @@
   </ItemGroup>
   <ItemGroup>
     <TransformFile Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\modules\audio_device\android\java\src\org\webrtc\voiceengine\AudioManagerAndroid.java" />
+    <None Include="src\modules\audio_device\android\java\src\org\webrtc\voiceengine\WebRTCAudioDevice.java" />
+    <None Include="src\modules\video_capture\android\java\src\org\webrtc\videoengine\VideoCaptureAndroid.java" />
+    <None Include="src\modules\video_capture\android\java\src\org\webrtc\videoengine\VideoCaptureDeviceInfoAndroid.java" />
+    <None Include="src\modules\video_render\android\java\src\org\webrtc\videoengine\ViEAndroidGLES20.java" />
+    <None Include="src\modules\video_render\android\java\src\org\webrtc\videoengine\ViERenderer.java" />
+    <None Include="src\modules\video_render\android\java\src\org\webrtc\videoengine\ViESurfaceRenderer.java" />
+    <None Include="src\video_engine\test\android\AndroidManifest.xml" />
+    <None Include="src\video_engine\test\android\build.xml" />
+    <None Include="src\video_engine\test\android\gen\org\webrtc\videoengineapp\BuildConfig.java" />
+    <None Include="src\video_engine\test\android\gen\org\webrtc\videoengineapp\R.java" />
+    <None Include="src\video_engine\test\android\jni\org_webrtc_videoengineapp_vie_android_java_api.h" />
+    <None Include="src\video_engine\test\android\jni\vie_android_java_api.cc" />
+    <None Include="src\video_engine\test\android\libs\audio_device_module_java.jar" />
+    <None Include="src\video_engine\test\android\libs\video_capture_module_java.jar" />
+    <None Include="src\video_engine\test\android\libs\video_render_module_java.jar" />
+    <None Include="src\video_engine\test\android\res\drawable\logo.png" />
+    <None Include="src\video_engine\test\android\res\layout\aconfig.xml" />
+    <None Include="src\video_engine\test\android\res\layout\both.xml" />
+    <None Include="src\video_engine\test\android\res\layout\main.xml" />
+    <None Include="src\video_engine\test\android\res\layout\row.xml" />
+    <None Include="src\video_engine\test\android\res\layout\send.xml" />
+    <None Include="src\video_engine\test\android\res\layout\tabhost.xml" />
+    <None Include="src\video_engine\test\android\res\layout\vconfig.xml" />
+    <None Include="src\video_engine\test\android\res\values\strings.xml" />
+    <None Include="src\video_engine\test\android\src\org\webrtc\videoengineapp\IViEAndroidCallback.java" />
+    <None Include="src\video_engine\test\android\src\org\webrtc\videoengineapp\ViEAndroidJavaAPI.java" />
+    <None Include="src\video_engine\test\android\src\org\webrtc\videoengineapp\WebRTCDemo.java" />
+    <None Include="src\video_engine\test\android\src\org\webrtc\videoengine\ViEMediaCodecDecoder.java" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
