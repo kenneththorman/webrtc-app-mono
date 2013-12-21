@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Activity1.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -107,11 +106,7 @@
   <ItemGroup>
     <None Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.java" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\Drawable\" />
-    <Folder Include="Resources\Layout\" />
-    <Folder Include="Resources\Values\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.java" />
   </ItemGroup>
@@ -126,6 +121,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\aconfig.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\both.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\main.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\row.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\send.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\tabhost.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Layout\vconfig.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Values\strings.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
