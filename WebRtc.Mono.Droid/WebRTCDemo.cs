@@ -28,7 +28,7 @@ using Camera = Android.Hardware.Camera;
 using Environment = System.Environment;
 using Math = System.Math;
 
-namespace WebRtc
+namespace WebRtc.Mono.Droid
 {
 	[Activity(Label = "WebRtc.Mono.Droid", MainLauncher = true, Icon = "@drawable/logo")]
 	public class WebRTCDemo : TabActivity, IViEAndroidCallback, View.IOnClickListener, AdapterView.IOnItemSelectedListener
