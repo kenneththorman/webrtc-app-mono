@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 /*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
@@ -10,6 +9,7 @@ using System.Collections.Generic;
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
+using WebRtc;
 
 namespace org.webrtc.videoengineapp
 {
@@ -1181,7 +1181,7 @@ namespace org.webrtc.videoengineapp
 			Log.d(TAG, "No setting selected");
 		}
 
-		public virtual int updateStats(int inFrameRateI, int inBitRateI, int inPacketLoss, int inFrameRateO, int inBitRateO)
+		public virtual int UpdateStats(int inFrameRateI, int inBitRateI, int inPacketLoss, int inFrameRateO, int inBitRateO)
 		{
 			frameRateI = inFrameRateI;
 			bitRateI = inBitRateI;
@@ -1191,7 +1191,7 @@ namespace org.webrtc.videoengineapp
 			return 0;
 		}
 
-		public virtual int newIncomingResolution(int width, int height)
+		public virtual int NewIncomingResolution(int width, int height)
 		{
 			widthI = width;
 			heightI = height;
