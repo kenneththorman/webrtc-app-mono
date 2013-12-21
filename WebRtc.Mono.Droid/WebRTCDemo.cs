@@ -242,7 +242,7 @@ namespace WebRtc
 			{
 				totalCameraRotation = (cameraRotation + cameraOrientation) % 360;
 			}
-			ViEAndroidJavaAPI.SetRotation(cameraId, totalCameraRotation);
+			ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetRotation(cameraId, totalCameraRotation);
 		}
 
 		// Called when the activity is first created.
@@ -474,14 +474,14 @@ namespace WebRtc
 				if (viERunning)
 				{
 					viERunning = false;
-					ViEAndroidJavaAPI.StopRender(channel);
-					ViEAndroidJavaAPI.StopReceive(channel);
-					ViEAndroidJavaAPI.StopSend(channel);
-					ViEAndroidJavaAPI.RemoveRemoteRenderer(channel);
-					ViEAndroidJavaAPI.ViE_DeleteChannel(channel);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopRender(channel);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopReceive(channel);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopSend(channel);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_RemoveRemoteRenderer(channel);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_ViE_DeleteChannel(channel);
 					channel = -1;
-					ViEAndroidJavaAPI.StopCamera(cameraId);
-					ViEAndroidJavaAPI.Terminate();
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopCamera(cameraId);
+					ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_Terminate();
 					mLlRemoteSurface.RemoveView(remoteSurfaceView);
 					mLlLocalSurface.RemoveView(svLocal);
 					remoteSurfaceView = null;
@@ -534,7 +534,7 @@ namespace WebRtc
 			{
 				vieAndroidAPI = new ViEAndroidJavaAPI(this);
 			}
-			if (0 > setupVoE() || 0 > ViEAndroidJavaAPI.GetVideoEngine() || 0 > ViEAndroidJavaAPI.Init(enableTrace))
+			if (0 > setupVoE() || 0 > ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_GetVideoEngine() || 0 > ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_Init(enableTrace))
 			{
 				// Show dialog
 				AlertDialog alertDialog = (new AlertDialog.Builder(this)).Create();
@@ -562,7 +562,7 @@ namespace WebRtc
 			svLocal = null;
 
 			// Video codec
-			mVideoCodecsStrings = ViEAndroidJavaAPI.GetCodecs();
+			mVideoCodecsStrings = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_GetCodecs();
 			spCodecType = (Spinner) FindViewById(Resource.Id.spCodecType);
 			spCodecType.OnItemSelectedListener = this;
 			spCodecType.Adapter = new SpinnerAdapter(this, this, Resource.Layout.row, mVideoCodecsStrings);
@@ -575,7 +575,7 @@ namespace WebRtc
 			spCodecSize.SetSelection(mVideoCodecsSizeStrings.Length - 1);
 
 			// Voice codec
-			mVoiceCodecsStrings = ViEAndroidJavaAPI.VoE_GetCodecs();
+			mVoiceCodecsStrings = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_GetCodecs();
 			spVoiceCodecType = (Spinner) FindViewById(Resource.Id.spVoiceCodecType);
 			spVoiceCodecType.OnItemSelectedListener = this;
 			spVoiceCodecType.Adapter = new SpinnerAdapter(this, this, Resource.Layout.row, mVoiceCodecsStrings);
@@ -728,9 +728,9 @@ namespace WebRtc
 					svLocal = ViERenderer.CreateLocalRenderer(this);
 				}
 
-				channel = ViEAndroidJavaAPI.CreateChannel(voiceChannel);
-				ret = ViEAndroidJavaAPI.SetLocalReceiver(channel, receivePortVideo);
-				ret = ViEAndroidJavaAPI.SetSendDestination(channel, destinationPortVideo, RemoteIPString);
+				channel = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_CreateChannel(voiceChannel);
+				ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetLocalReceiver(channel, receivePortVideo);
+				ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetSendDestination(channel, destinationPortVideo, RemoteIPString);
 
 				if (enableVideoReceive)
 				{
@@ -757,22 +757,22 @@ namespace WebRtc
 
 					if (renderType == RenderType.MEDIACODEC)
 					{
-						ret = ViEAndroidJavaAPI.SetExternalMediaCodecDecoderRenderer(channel, remoteSurfaceView);
+						ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetExternalMediaCodecDecoderRenderer(channel, remoteSurfaceView);
 					}
 					else
 					{
-						ret = ViEAndroidJavaAPI.AddRemoteRenderer(channel, remoteSurfaceView);
+						ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_AddRemoteRenderer(channel, remoteSurfaceView);
 					}
 
-					ret = ViEAndroidJavaAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE);
-					ret = ViEAndroidJavaAPI.StartRender(channel);
-					ret = ViEAndroidJavaAPI.StartReceive(channel);
+					ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE);
+					ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartRender(channel);
+					ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartReceive(channel);
 				}
 
 				if (enableVideoSend)
 				{
-					ret = ViEAndroidJavaAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE);
-					int camId = ViEAndroidJavaAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
+					ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE);
+					int camId = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartCamera(channel, usingFrontCamera ? 1 : 0);
 
 					if (camId >= 0)
 					{
@@ -783,14 +783,14 @@ namespace WebRtc
 					{
 						ret = camId;
 					}
-					ret = ViEAndroidJavaAPI.StartSend(channel);
+					ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartSend(channel);
 				}
 
 				// TODO(leozwang): Add more options besides PLI, currently use pli
 				// as the default. Also check return value.
-				ret = ViEAndroidJavaAPI.EnablePLI(channel, true);
-				ret = ViEAndroidJavaAPI.EnableNACK(channel, enableNack);
-				ret = ViEAndroidJavaAPI.SetCallback(channel, this);
+				ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_EnablePLI(channel, true);
+				ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_EnableNACK(channel, enableNack);
+				ret = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetCallback(channel, this);
 
 				if (enableVideoSend)
 				{
@@ -817,31 +817,31 @@ namespace WebRtc
 		private void stopVoiceEngine()
 		{
 			// Stop send
-			if (0 != ViEAndroidJavaAPI.VoE_StopSend(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StopSend(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop send failed");
 			}
 
 			// Stop listen
-			if (0 != ViEAndroidJavaAPI.VoE_StopListen(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StopListen(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop listen failed");
 			}
 
 			// Stop playout
-			if (0 != ViEAndroidJavaAPI.VoE_StopPlayout(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StopPlayout(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE stop playout failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_DeleteChannel(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_DeleteChannel(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE delete channel failed");
 			}
 			voiceChannel = -1;
 
 			// Terminate
-			if (0 != ViEAndroidJavaAPI.VoE_Terminate())
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_Terminate())
 			{
 				Log.Debug(TAG, "VoE terminate failed");
 			}
@@ -851,10 +851,10 @@ namespace WebRtc
 		{
 			// Create VoiceEngine
 			// Error logging is done in native API wrapper
-			ViEAndroidJavaAPI.VoE_Create(ApplicationContext);
+			ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_Create(ApplicationContext);
 
 			// Initialize
-			if (0 != ViEAndroidJavaAPI.VoE_Init(enableTrace))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_Init(enableTrace))
 			{
 				Log.Debug(TAG, "VoE init failed");
 				return -1;
@@ -868,7 +868,7 @@ namespace WebRtc
 		private int startVoiceEngine()
 		{
 			// Create channel
-			voiceChannel = ViEAndroidJavaAPI.VoE_CreateChannel();
+			voiceChannel = ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_CreateChannel();
 			if (0 > voiceChannel)
 			{
 				Log.Debug(TAG, "VoE create channel failed");
@@ -876,12 +876,12 @@ namespace WebRtc
 			}
 
 			// Set local receiver
-			if (0 != ViEAndroidJavaAPI.VoE_SetLocalReceiver(voiceChannel, receivePortVoice))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetLocalReceiver(voiceChannel, receivePortVoice))
 			{
 				Log.Debug(TAG, "VoE set local receiver failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_StartListen(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StartListen(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start listen failed");
 			}
@@ -890,43 +890,43 @@ namespace WebRtc
 			RouteAudio(cbEnableSpeaker.Checked);
 
 			// set volume to default value
-			if (0 != ViEAndroidJavaAPI.VoE_SetSpeakerVolume(volumeLevel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetSpeakerVolume(volumeLevel))
 			{
 				Log.Debug(TAG, "VoE set speaker volume failed");
 			}
 
 			// Start playout
-			if (0 != ViEAndroidJavaAPI.VoE_StartPlayout(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StartPlayout(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start playout failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_SetSendDestination(voiceChannel, destinationPortVoice, RemoteIPString))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetSendDestination(voiceChannel, destinationPortVoice, RemoteIPString))
 			{
 				Log.Debug(TAG, "VoE set send  destination failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetSendCodec(voiceChannel, voiceCodecType))
 			{
 				Log.Debug(TAG, "VoE set send codec failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_SetECStatus(enableAECM))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetECStatus(enableAECM))
 			{
 				Log.Debug(TAG, "VoE set EC Status failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_SetAGCStatus(enableAGC))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetAGCStatus(enableAGC))
 			{
 				Log.Debug(TAG, "VoE set AGC Status failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_SetNSStatus(enableNS))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetNSStatus(enableNS))
 			{
 				Log.Debug(TAG, "VoE set NS Status failed");
 			}
 
-			if (0 != ViEAndroidJavaAPI.VoE_StartSend(voiceChannel))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StartSend(voiceChannel))
 			{
 				Log.Debug(TAG, "VoE start send failed");
 			}
@@ -937,7 +937,7 @@ namespace WebRtc
 
 		private void RouteAudio(bool enableSpeaker)
 		{
-			if (0 != ViEAndroidJavaAPI.VoE_SetLoudspeakerStatus(enableSpeaker))
+			if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetLoudspeakerStatus(enableSpeaker))
 			{
 				Log.Debug(TAG, "VoE set louspeaker status failed");
 			}
@@ -981,10 +981,10 @@ namespace WebRtc
 
 					if (viERunning)
 					{
-						ViEAndroidJavaAPI.StopCamera(cameraId);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopCamera(cameraId);
 						mLlLocalSurface.RemoveView(svLocal);
 
-						ViEAndroidJavaAPI.StartCamera(channel, usingFrontCamera ? 1 : 0);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartCamera(channel, usingFrontCamera ? 1 : 0);
 						mLlLocalSurface.AddView(svLocal);
 						compensateCameraRotation();
 					}
@@ -1036,7 +1036,7 @@ namespace WebRtc
 					enableNack = cbEnableNack.Checked;
 					if (viERunning)
 					{
-						ViEAndroidJavaAPI.EnableNACK(channel, enableNack);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_EnableNACK(channel, enableNack);
 					}
 					break;
 				case Resource.Id.cbSpeaker:
@@ -1050,11 +1050,11 @@ namespace WebRtc
 					{
 						if (cbEnableDebugAPM.Checked)
 						{
-							ViEAndroidJavaAPI.VoE_StartDebugRecording(webrtcDebugDir + string.Format("/apm_{0:D}.dat", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StartDebugRecording(webrtcDebugDir + string.Format("/apm_{0:D}.dat", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							ViEAndroidJavaAPI.VoE_StopDebugRecording();
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StopDebugRecording();
 						}
 					}
 					break;
@@ -1063,11 +1063,11 @@ namespace WebRtc
 					{
 						if (cbEnableVoiceRTPDump.Checked)
 						{
-							ViEAndroidJavaAPI.VoE_StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/voe_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/voe_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							ViEAndroidJavaAPI.VoE_StopIncomingRTPDump(channel);
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_StopIncomingRTPDump(channel);
 						}
 					}
 					break;
@@ -1076,11 +1076,11 @@ namespace WebRtc
 					{
 						if (cbEnableVideoRTPDump.Checked)
 						{
-							ViEAndroidJavaAPI.StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/vie_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StartIncomingRTPDump(channel, webrtcDebugDir + string.Format("/vie_{0:D}.rtp", DateTimeHelperClass.CurrentUnixTimeMillis()));
 						}
 						else
 						{
-							ViEAndroidJavaAPI.StopIncomingRTPDump(channel);
+							ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_StopIncomingRTPDump(channel);
 						}
 					}
 					break;
@@ -1088,21 +1088,21 @@ namespace WebRtc
 					enableAGC = cbEnableAGC.Checked;
 					if (voERunning)
 					{
-						ViEAndroidJavaAPI.VoE_SetAGCStatus(enableAGC);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetAGCStatus(enableAGC);
 					}
 					break;
 				case Resource.Id.cbNoiseSuppression:
 					enableNS = cbEnableNS.Checked;
 					if (voERunning)
 					{
-						ViEAndroidJavaAPI.VoE_SetNSStatus(enableNS);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetNSStatus(enableNS);
 					}
 					break;
 				case Resource.Id.cbAECM:
 					enableAECM = cbEnableAECM.Checked;
 					if (voERunning)
 					{
-						ViEAndroidJavaAPI.VoE_SetECStatus(enableAECM);
+						ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetECStatus(enableAECM);
 					}
 					break;
 			}
@@ -1143,14 +1143,14 @@ namespace WebRtc
 				// change the codectype
 				if (enableVideoReceive)
 				{
-					if (0 != ViEAndroidJavaAPI.SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE))
+					if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetReceiveCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, RECEIVE_CODEC_FRAMERATE))
 					{
 						Log.Debug(TAG, "ViE set receive codec failed");
 					}
 				}
 				if (enableVideoSend)
 				{
-					if (0 != ViEAndroidJavaAPI.SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE))
+					if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_SetSendCodec(channel, codecType, INIT_BITRATE, codecSizeWidth, codecSizeHeight, SEND_CODEC_FRAMERATE))
 					{
 						Log.Debug(TAG, "ViE set send codec failed");
 					}
@@ -1160,7 +1160,7 @@ namespace WebRtc
 			{
 				// change voice engine codec
 				readSettings();
-				if (0 != ViEAndroidJavaAPI.VoE_SetSendCodec(voiceChannel, voiceCodecType))
+				if (0 != ViEAndroidJavaAPI.Java_org_webrtc_videoengineapp_ViEAndroidJavaAPI_VoE_SetSendCodec(voiceChannel, voiceCodecType))
 				{
 					Log.Debug(TAG, "VoE set send codec failed");
 				}
