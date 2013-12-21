@@ -5,11 +5,14 @@
 //	This class is used to replace calls to Java's System.currentTimeMillis with the C# equivalent.
 //	Unix time is defined as the number of seconds that have elapsed since midnight UTC, 1 January 1970.
 //---------------------------------------------------------------------------------------------------------
-internal static class DateTimeHelperClass
+namespace WebRtc.Org.Webrtc.Videoengine
 {
-	private static readonly System.DateTime Jan1st1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-	internal static long CurrentUnixTimeMillis()
+	internal static class DateTimeHelperClass
 	{
-		return (long)(System.DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
+		private static readonly System.DateTime Jan1st1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+		internal static long CurrentUnixTimeMillis()
+		{
+			return (long)(System.DateTime.UtcNow - Jan1st1970).TotalMilliseconds;
+		}
 	}
 }
