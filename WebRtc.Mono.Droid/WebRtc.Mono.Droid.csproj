@@ -54,9 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IViEAndroidCallback.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Org\Webrtc\Videoengine\DateTimeHelperClass.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -83,9 +80,6 @@
     </Compile>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViEAndroidJavaAPI.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="WebRTCDemo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +134,12 @@
     <AndroidResource Include="Resources\Layout\tabhost.xml" />
     <AndroidResource Include="Resources\Layout\vconfig.xml" />
     <AndroidResource Include="Resources\Values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebRtc.Mono.ViEAndroidJavaAPI\WebRtc.Mono.ViEAndroidJavaAPI.csproj">
+      <Project>{45a11329-f170-4b2d-9ccc-c09ef500c114}</Project>
+      <Name>WebRtc.Mono.ViEAndroidJavaAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
