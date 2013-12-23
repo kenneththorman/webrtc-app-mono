@@ -69,7 +69,7 @@ namespace WebRtc.Mono.Droid
 			viEAndroidJavaAPI = new ViEAndroidJavaAPI(Application.Context);
 		}
 
-		private class RunnableAnonymousInnerClassHelper : IRunnable
+		private class RunnableAnonymousInnerClassHelper : Java.Lang.Object, IRunnable
 		{
 			private readonly WebRTCDemo _webRtcDemo;
 
@@ -82,13 +82,6 @@ namespace WebRtc.Mono.Droid
 			{
 				_webRtcDemo.StartOrStop();
 			}
-
-			public void Dispose()
-			{
-				throw new NotImplementedException();
-			}
-
-			public IntPtr Handle { get; private set; }
 		}
 
 		private int volumeLevel = 204;
@@ -682,7 +675,7 @@ namespace WebRtc.Mono.Droid
 			readSettings();
 		}
 
-		private class OnClickListenerAnonymousInnerClassHelper : IDialogInterfaceOnClickListener
+		private class OnClickListenerAnonymousInnerClassHelper : Java.Lang.Object, IDialogInterfaceOnClickListener
 		{
 			private readonly WebRTCDemo outerInstance;
 
@@ -695,13 +688,6 @@ namespace WebRtc.Mono.Droid
 			{
 				return;
 			}
-
-			public void Dispose()
-			{
-				throw new NotImplementedException();
-			}
-
-			public IntPtr Handle { get; private set; }
 		}
 
 		private string RemoteIPString

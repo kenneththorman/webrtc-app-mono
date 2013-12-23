@@ -84,7 +84,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			RenderMode = Rendermode.WhenDirty;
 		}
 
-		private class ContextFactory : GLSurfaceView.IEGLContextFactory
+		private class ContextFactory : Java.Lang.Object, GLSurfaceView.IEGLContextFactory
 		{
 			internal static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 			public virtual EGLContext CreateContext(IEGL10 egl, EGLDisplay display, EGLConfig eglConfig)
@@ -101,13 +101,6 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			{
 				egl.EglDestroyContext(display, context);
 			}
-
-			public void Dispose()
-			{
-				throw new NotImplementedException();
-			}
-
-			public IntPtr Handle { get; private set; }
 		}
 
 		private static void checkEglError(string prompt, IEGL10 egl)
@@ -119,7 +112,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			}
 		}
 
-		private class ConfigChooser : IEGLConfigChooser
+		private class ConfigChooser : Java.Lang.Object, IEGLConfigChooser
 		{
 
 			public ConfigChooser(int r, int g, int b, int a, int depth, int stencil)
@@ -241,12 +234,6 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			protected internal int mDepthSize;
 			protected internal int mStencilSize;
 			internal int[] mValue = new int[1];
-			public void Dispose()
-			{
-				throw new NotImplementedException();
-			}
-
-			public IntPtr Handle { get; private set; }
 		}
 
 		// IsSupported

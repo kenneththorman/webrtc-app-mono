@@ -20,8 +20,8 @@ namespace WebRtc.Org.Webrtc.Videoengine
 
 	// The following four imports are needed saveBitmapToJPEG which
 	// is for debug only
-	
-	public class ViESurfaceRenderer : ISurfaceHolderCallback
+
+	public class ViESurfaceRenderer : Java.Lang.Object, ISurfaceHolderCallback
 	{
 
 		private const string TAG = "WEBRTC";
@@ -156,13 +156,6 @@ namespace WebRtc.Org.Webrtc.Videoengine
 				surfaceHolder.UnlockCanvasAndPost(canvas);
 			}
 		}
-
-		public void Dispose()
-		{
-			throw new NotImplementedException();
-		}
-
-		public IntPtr Handle { get; private set; }
 	}
 
 }
