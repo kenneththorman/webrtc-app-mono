@@ -21,8 +21,8 @@ using Android.Widget;
 using Java.IO;
 using Java.Lang;
 using Java.Net;
+using Org.Webrtc.Videoengine;
 using Org.Webrtc.Videoengineapp;
-using WebRtc.Org.Webrtc.Videoengine;
 using Camera = Android.Hardware.Camera;
 using Math = System.Math;
 
@@ -1101,7 +1101,7 @@ namespace WebRtc.Mono.Droid
 			voiceCodecType = spVoiceCodecType.SelectedItemPosition;
 
 			string sCodecSize = spCodecSize.SelectedItem.ToString();
-			string[] aCodecSize = sCodecSize.Split(new[]{'x'}, 1);
+			string[] aCodecSize = sCodecSize.Split(new []{"x"}, StringSplitOptions.None);
 			codecSizeWidth = Convert.ToInt32(aCodecSize[0]);
 			codecSizeHeight = Convert.ToInt32(aCodecSize[1]);
 

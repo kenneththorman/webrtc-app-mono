@@ -54,30 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Org\Webrtc\Videoengine\DateTimeHelperClass.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureAndroid.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Videoengine\VideoCaptureDeviceInfoAndroid.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Videoengine\ViEAndroidGLES20.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Videoengine\ViERenderer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Videoengine\ViESurfaceRenderer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Voiceengine\AudioManagerAndroid.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Org\Webrtc\Voiceengine\WebRTCAudioDevice.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="DateTimeHelperClass.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRTCDemo.cs" />
@@ -123,6 +100,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidJavaLibrary Include="lib\ViEAndroidJavaAPI.jar" />
+    <AndroidJavaLibrary Include="lib\audio_device_module_java.jar" />
+    <AndroidJavaLibrary Include="lib\video_capture_module_java.jar" />
+    <AndroidJavaLibrary Include="lib\video_render_module_java.jar" />
     <Content Include="Properties\AndroidManifest.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -141,7 +121,16 @@
       <Project>{45a11329-f170-4b2d-9ccc-c09ef500c114}</Project>
       <Name>Org.Webrtc.Videoengineapp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Org.Webrtc.Videoengine\Org.Webrtc.Videoengine.csproj">
+      <Project>{074dd245-d7f1-448d-8f54-6f9c2301120a}</Project>
+      <Name>Org.Webrtc.Videoengine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Org.Webrtc.Voiceengine\Org.Webrtc.Voiceengine.csproj">
+      <Project>{9b5daa9b-7087-47a3-8b7a-8fb8d794696a}</Project>
+      <Name>Org.Webrtc.Voiceengine</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
      Other similar extension points exist, see Microsoft.Common.targets.
