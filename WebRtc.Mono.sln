@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRtc.Mono.Droid", "WebRtc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Webrtc.Videoengineapp", "Org.Webrtc.Videoengineapp\Org.Webrtc.Videoengineapp.csproj", "{45A11329-F170-4B2D-9CCC-C09EF500C114}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Webrtc.Videoengine", "Org.Webrtc.Videoengine\Org.Webrtc.Videoengine.csproj", "{074DD245-D7F1-448D-8F54-6F9C2301120A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Org.Webrtc.Voiceengine", "Org.Webrtc.Voiceengine\Org.Webrtc.Voiceengine.csproj", "{9B5DAA9B-7087-47A3-8B7A-8FB8D794696A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{45A11329-F170-4B2D-9CCC-C09EF500C114}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45A11329-F170-4B2D-9CCC-C09EF500C114}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45A11329-F170-4B2D-9CCC-C09EF500C114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{074DD245-D7F1-448D-8F54-6F9C2301120A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{074DD245-D7F1-448D-8F54-6F9C2301120A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{074DD245-D7F1-448D-8F54-6F9C2301120A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{074DD245-D7F1-448D-8F54-6F9C2301120A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B5DAA9B-7087-47A3-8B7A-8FB8D794696A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B5DAA9B-7087-47A3-8B7A-8FB8D794696A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B5DAA9B-7087-47A3-8B7A-8FB8D794696A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B5DAA9B-7087-47A3-8B7A-8FB8D794696A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@
 //	This class is used to replace calls to Java's System.currentTimeMillis with the C# equivalent.
 //	Unix time is defined as the number of seconds that have elapsed since midnight UTC, 1 January 1970.
 //---------------------------------------------------------------------------------------------------------
-namespace WebRtc.Org.Webrtc.Videoengine
+namespace WebRtc.Mono.Droid
 {
 	internal static class DateTimeHelperClass
 	{
