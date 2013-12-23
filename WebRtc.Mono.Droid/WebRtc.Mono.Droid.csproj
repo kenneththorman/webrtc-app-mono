@@ -122,6 +122,7 @@
     <None Include="src\video_engine\test\android\src\org\webrtc\videoengine\ViEMediaCodecDecoder.java" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidJavaLibrary Include="lib\ViEAndroidJavaAPI.jar" />
     <Content Include="Properties\AndroidManifest.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -136,9 +137,9 @@
     <AndroidResource Include="Resources\Values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebRtc.Mono.ViEAndroidJavaAPI\WebRtc.Mono.ViEAndroidJavaAPI.csproj">
+    <ProjectReference Include="..\Org.Webrtc.Videoengineapp\Org.Webrtc.Videoengineapp.csproj">
       <Project>{45a11329-f170-4b2d-9ccc-c09ef500c114}</Project>
-      <Name>WebRtc.Mono.ViEAndroidJavaAPI</Name>
+      <Name>Org.Webrtc.Videoengineapp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
