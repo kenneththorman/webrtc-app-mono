@@ -13,7 +13,9 @@ using Android.Graphics;
 using Android.Util;
 using Android.Views;
 using Java.IO;
+using Java.Lang;
 using Camera = Android.Hardware.Camera;
+using Exception = Java.Lang.Exception;
 
 namespace WebRtc.Org.Webrtc.Videoengine
 {
@@ -24,7 +26,7 @@ namespace WebRtc.Org.Webrtc.Videoengine
 	// a performance bottleneck because only onPreviewFrame() is called more than
 	// once (and is called serially on a single thread), so the lock should be
 	// uncontended.
-	public class VideoCaptureAndroid : Camera.IPreviewCallback, ISurfaceHolderCallback
+	public class VideoCaptureAndroid : Java.Lang.Object, Camera.IPreviewCallback, ISurfaceHolderCallback
 	{
 	  private const string TAG = "WEBRTC-JC";
 
@@ -259,13 +261,6 @@ namespace WebRtc.Org.Webrtc.Videoengine
 			}
 		  }
 	  }
-
-		public void Dispose()
-		{
-			throw new NotImplementedException();
-		}
-
-		public IntPtr Handle { get; private set; }
 	}
 
 }
